@@ -82,7 +82,7 @@ RUN echo "master  agentx" > /etc/snmp/snmpd.conf \
 
 # Configure sshd
 RUN echo "Subsystem netconf /usr/local/bin/clixon_netconf" >> /etc/ssh/sshd_config \
-    && adduser -D -H -s /usr/local/bin/clixon_cli -G www-data cli \
+    && adduser -D -H -s /usr/local/bin/clixon_cli -G clicon cli \
     && passwd -u cli \
     && echo "cli ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \
     && sed -i '/^#PermitEmptyPasswords no/c\PermitEmptyPasswords yes' /etc/ssh/sshd_config 
