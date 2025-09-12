@@ -38,7 +38,7 @@ import json
 import clixon_beh
 import clixon_beh.transaction_framework as tf
 
-ipcmds = ("/usr/bin/ip", "/usr/sbin/ip")
+ipcmds = ("/sbin/ip", "/usr/bin/ip", "/usr/sbin/ip")
 ipcmd = None
 for i in ipcmds:
     if os.path.exists(i):
@@ -88,6 +88,7 @@ class Map2Value(tf.YangElemValueOnly):
                  default = None):
         self.keyval1 = keyval1
         self.keyval2 = keyval2
+        self.default = default
         super().__init__(name, tf.YangType.LEAF, isconfig=isconfig)
         return
 
@@ -604,7 +605,10 @@ s.add_leaf("/interfaces/interface/ipv6/autoconf",
 class DiscontinuityTime(tf.YangElemValueOnly):
     # FIXME - This just returns boot time, not sure what else to do.
     def getvalue(self, data, vdata=None):
-        date = self.program_output(["/bin/date", "--rfc-3339=seconds"]).strip()
+        date = self.program_output(["/bin/date", "+%F %H:%M:%S%z"]).strip()
+        # Convert timezone from +hhmm to +hh:mm
+        if len(date) > 5 and (date[-5] == "+" or date[-5] == "-"):
+            date = date[:-5] + date[-5:-2] + ":" + date[-2:]
         date = date.split(" ")
         if len(date) < 2:
             raise Exception("Invalid date output: " + str(date))
