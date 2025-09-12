@@ -1,0 +1,17 @@
+services:
+  clixon:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: clixon-docker
+    container_name: clixon-docker
+    ports:
+      - "2222:22"
+      #- "80:80"
+      #- "443:443"
+    volumes:
+      - data:/storage/
+    restart: unless-stopped
+
+volumes:
+  data:

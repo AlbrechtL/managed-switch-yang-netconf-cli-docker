@@ -1,0 +1,105 @@
+########################################################################################################################
+# Build stage for cligen, clixon and clixon-backend-helper
+########################################################################################################################
+FROM python:alpine AS clixon_build
+
+# For clixon and cligen
+RUN apk update \
+    && apk add --no-cache \
+        git \
+        make \
+        build-base \
+        gcc \
+        flex \
+        bison \
+        curl-dev \
+        nghttp2 \
+        net-snmp \
+        net-snmp-dev \
+        shadow \
+        meson \
+        swig \
+    \
+    && adduser -D -H -G www-data www-data \
+    && mkdir -p /clixon/build
+
+# Clone and build cligen
+RUN git clone https://github.com/clicon/cligen.git /clixon/cligen \
+    && cd /clixon/cligen \
+    && ./configure --prefix=/usr/local --sysconfdir=/etc \
+    && make -j4 \
+    && make install \
+    && make DESTDIR=/clixon/build install
+
+# Clone and build clixon
+RUN git clone https://github.com/clicon/clixon.git /clixon/clixon \
+    && cd /clixon/clixon \
+    && ./configure --prefix=/usr/local --sysconfdir=/etc --with-cligen=/clixon/build/usr/local --with-restconf=native --enable-nghttp2 --enable-http1 --enable-netsnmp \
+    && make -j4 \
+    && make install \
+    && make install-include \
+    && make DESTDIR=/clixon/build install \
+    && make DESTDIR=/clixon/build install-include 
+
+# Build clixon backend helper
+COPY . /clixon/clixon-backend-helper
+WORKDIR /clixon/clixon-backend-helper
+RUN cd /clixon/clixon-backend-helper \
+    && meson setup build \
+    && meson compile -C build \
+    && meson install -C build --destdir /clixon/build 
+
+
+########################################################################################################################
+# clixon Docker image
+########################################################################################################################
+FROM python:alpine
+
+# For clixon and cligen
+RUN apk update \
+    && apk add --no-cache \
+        multirun \
+        flex \
+        bison \
+        openssl \
+        nghttp2 \
+        net-snmp \
+        net-snmp-tools \
+        openssh \
+        iproute2 \
+    && adduser -D -H -G www-data www-data \
+    && adduser -D -H clicon
+
+# Some custom configuration for SNMP
+RUN echo "master  agentx" > /etc/snmp/snmpd.conf \
+    && echo "agentaddress  127.0.0.1" >> /etc/snmp/snmpd.conf \
+    && echo "rwcommunity   public  localhost" >> /etc/snmp/snmpd.conf \
+    && echo "agentxsocket  unix:/var/run/snmp.sock" >> /etc/snmp/snmpd.conf \
+    && echo "agentxperms   777 777" >> /etc/snmp/snmpd.conf \
+    && echo "trap2sink     localhost public 162" >> /etc/snmp/snmpd.conf \
+    && echo "disableAuthorization yes" >> /etc/snmp/snmptrapd.conf
+
+
+# Configure sshd
+RUN echo "Subsystem netconf /usr/local/bin/clixon_netconf" >> /etc/ssh/sshd_config \
+    && adduser -D -H -s /usr/local/bin/clixon_cli -G www-data cli \
+    && passwd -u cli \
+    && echo "cli ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \
+    && sed -i '/^#PermitEmptyPasswords no/c\PermitEmptyPasswords yes' /etc/ssh/sshd_config 
+
+# Copy stuff into this container
+COPY --from=clixon_build /clixon/build/ /
+COPY start-container.sh /usr/local/bin/start-container.sh
+RUN chmod +x /usr/local/bin/start-container.sh
+
+# Create symlink so you can run clixon without -f arg
+RUN ln -s /usr/local/etc/clixon/ietf-ip.xml /etc/clixon.xml 
+
+# Expose https port for restconf
+EXPOSE 22/tcp
+EXPOSE 80/tcp
+EXPOSE 443/tcp
+
+# Start daemons
+CMD ["/usr/local/bin/start-container.sh"]
+
