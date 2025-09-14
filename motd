@@ -1,0 +1,11 @@
+============================================================
+        Managed Switch CLI - Secure Access Portal
+============================================================
+
+  Welcome to the Switch Management Console.
+  This interface is powered by a YANG-based data model
+  and built on Clixon, providing:
+    • interactive CLI
+    • RESTCONF and NETCONF interfaces generated from YANG models
+
+============================================================
