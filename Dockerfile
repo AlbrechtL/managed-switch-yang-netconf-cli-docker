@@ -82,13 +82,15 @@ RUN echo "master  agentx" > /etc/snmp/snmpd.conf \
 
 # Configure sshd
 RUN echo "Subsystem netconf /usr/local/bin/clixon_netconf" >> /etc/ssh/sshd_config \
-    && adduser -D -H -s /usr/local/bin/clixon_cli -G clicon cli \
+    && mkdir -p /home/cli \
+    && adduser -D -s /usr/local/bin/clixon_cli -G clicon -h /home/cli -H cli \
     && passwd -u cli \
     && echo "cli ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \
     && sed -i '/^#PermitEmptyPasswords no/c\PermitEmptyPasswords yes' /etc/ssh/sshd_config 
 
 # Copy stuff into this container
 COPY --from=clixon_build /clixon/build/ /
+COPY motd /etc/motd
 COPY start-container.sh /usr/local/bin/start-container.sh
 RUN chmod +x /usr/local/bin/start-container.sh
 
