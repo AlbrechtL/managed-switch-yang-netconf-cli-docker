@@ -61,6 +61,4 @@ install_headers('clixon_beh.h')
 
 subdir('clixon_beh')
 
-subdir('implementations/linux-system')
 subdir('implementations/ietf-ip')
-subdir('implementations/chronyd-server')
