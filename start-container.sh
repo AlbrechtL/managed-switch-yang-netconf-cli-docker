@@ -18,7 +18,7 @@ for key in /storage/etc/ssh/ssh_host_*_key*; do
 done
 
 # Remove default nginx config to avoid conflicts
-rm /etc/nginx/http.d/default.conf
+rm -f /etc/nginx/http.d/default.conf
 
 # Start processes
 exec multirun \

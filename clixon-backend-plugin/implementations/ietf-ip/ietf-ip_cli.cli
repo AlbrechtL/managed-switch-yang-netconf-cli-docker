@@ -1,5 +1,5 @@
 CLICON_MODE="ietf-ip";
-CLICON_PROMPT="ietf-ip> ";
+CLICON_PROMPT="switch> ";
 
 # Reference generated data model
 set @datamodel, cli_set();

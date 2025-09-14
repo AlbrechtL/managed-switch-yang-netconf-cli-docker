@@ -42,7 +42,7 @@ RUN git clone https://github.com/clicon/clixon.git /clixon/clixon \
     && make DESTDIR=/clixon/build install-include 
 
 # Build clixon backend helper
-COPY . /clixon/clixon-backend-helper
+COPY clixon-backend-plugin /clixon/clixon-backend-helper
 WORKDIR /clixon/clixon-backend-helper
 RUN cd /clixon/clixon-backend-helper \
     && meson setup build \
