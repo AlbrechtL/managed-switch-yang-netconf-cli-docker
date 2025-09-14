@@ -6,8 +6,10 @@ services:
     image: clixon-docker
     container_name: clixon-docker
     ports:
+      # ssh console
       - "2222:22"
-      #- "80:80"
+      # Webssh console
+      - "8888:80"
       #- "443:443"
     volumes:
       - data:/storage/

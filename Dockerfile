@@ -67,8 +67,10 @@ RUN apk update \
         net-snmp-tools \
         openssh \
         iproute2 \
+        nginx \
     && adduser -D -H -G www-data www-data \
-    && adduser -D -H clicon
+    && adduser -D -H clicon \
+    && sed -i 's/^worker_processes.*/worker_processes 1;daemon off;/' /etc/nginx/nginx.conf
 
 # Some custom configuration for SNMP
 RUN echo "master  agentx" > /etc/snmp/snmpd.conf \
@@ -88,9 +90,14 @@ RUN echo "Subsystem netconf /usr/local/bin/clixon_netconf" >> /etc/ssh/sshd_conf
     && echo "cli ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \
     && sed -i '/^#PermitEmptyPasswords no/c\PermitEmptyPasswords yes' /etc/ssh/sshd_config 
 
+# Configure webssh
+RUN pip install webssh
+
 # Copy stuff into this container
 COPY --from=clixon_build /clixon/build/ /
 COPY motd /etc/motd
+COPY nginx.conf /etc/nginx/http.d/
+COPY index.html /var/www
 COPY start-container.sh /usr/local/bin/start-container.sh
 RUN chmod +x /usr/local/bin/start-container.sh
 

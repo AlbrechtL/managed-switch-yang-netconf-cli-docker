@@ -17,8 +17,13 @@ for key in /storage/etc/ssh/ssh_host_*_key*; do
     fi
 done
 
+# Remove default nginx config to avoid conflicts
+rm /etc/nginx/http.d/default.conf
+
 # Start processes
 exec multirun \
   "clixon_backend -F" \
-  "/usr/sbin/sshd -D"
+  "/usr/sbin/sshd -D" \
+  "wssh --address='127.0.0.1' --port=8888" \
+  "nginx"
 
