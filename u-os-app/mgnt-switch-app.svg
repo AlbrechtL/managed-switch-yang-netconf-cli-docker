@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
   <!-- Outer square outline -->
-  <rect x="5" y="5" width="110" height="110" fill="none" stroke="#FFA500" stroke-width="1" rx="10" ry="10"/>
+  <rect x="5" y="5" width="110" height="110" fill="none" stroke="#ef7800" stroke-width="1" rx="10" ry="10"/>
 
   <!-- Switch body -->
-  <rect x="15" y="40" width="90" height="40" fill="none" stroke="#FFA500" stroke-width="2"/>
+  <rect x="15" y="40" width="90" height="40" fill="none" stroke="#ef7800" stroke-width="2"/>
 
   <!-- Ports (5 ports) centered vertically in switch) -->
-  <g stroke="#FFA500" stroke-width="1.5" fill="none">
+  <g stroke="#ef7800" stroke-width="1.5" fill="none">
     <rect x="20" y="47.5" width="12" height="15" rx="1" ry="1" stroke-width="1" />
     <rect x="37" y="47.5" width="12" height="15" rx="1" ry="1" stroke-width="1" />
     <rect x="54" y="47.5" width="12" height="15" rx="1" ry="1" stroke-width="1" />
@@ -15,7 +15,7 @@
   </g>
 
   <!-- Status LEDs below each port -->
-  <g fill="#FFA500">
+  <g fill="#ef7800">
     <circle cx="26" cy="65.5" r="1.5"/>
     <circle cx="43" cy="65.5" r="1.5"/>
     <circle cx="60" cy="65.5" r="1.5"/>
