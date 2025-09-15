@@ -3,10 +3,13 @@ module mv-ip {
     prefix "lin";
 
     import ietf-ip {
-	prefix ip;
+	    prefix ip;
     }
     import iana-if-type {
-	prefix ianaift;
+	    prefix ianaift;
+    }
+    import openconfig-vlan {
+        prefix vlan;
     }
 
     organization

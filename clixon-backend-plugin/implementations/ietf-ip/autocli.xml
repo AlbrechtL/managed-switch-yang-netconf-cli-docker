@@ -6,5 +6,10 @@
         <operation>enable</operation>
         <module-name>ietf-interface*</module-name>
      </rule>
+      <rule>
+        <name>include openconfig yang</name>
+        <operation>enable</operation>
+        <module-name>openconfig-*</module-name>
+     </rule>
   </autocli>
 </clixon-config>
