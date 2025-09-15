@@ -120,10 +120,15 @@ jobs:
 
           find u-os-app/
 
+          echo "***** Patching u-OS app *****"
+          cp u-os-app/add-reboot-false-too-swu u-os-app/u-os-app-build_$APP_VERSION.swu/linux-arm64
+          cd u-os-app/u-os-app-build_$APP_VERSION.swu/linux-arm64
+          ./add-reboot-false-too-swu mgnt-sw-yang-docker_$APP_VERSION.swu
+
       - name: Archive artifacts (u-OS app)
         if: always() && steps.create_u-os-app.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
-          name: u-OS app
+          name: Managed switch management console u-OS app
           path: u-os-app/u-os-app-build_*.swu/linux-arm64/*.swu
           if-no-files-found: error

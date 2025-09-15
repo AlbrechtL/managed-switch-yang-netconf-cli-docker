@@ -16,7 +16,7 @@ fi
 
 # Extract base name and extension
 BASENAME=$(basename "$ORIGINAL_SWU" .swu)
-MODIFIED_SWU="${BASENAME}_modified.swu"
+MODIFIED_SWU="${BASENAME}_patched.swu"
 TMP_DIR="swu_temp"
 
 # Prepare temp directory
