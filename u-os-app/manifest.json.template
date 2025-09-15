@@ -1,8 +1,8 @@
 {
   "manifestVersion": "0.2",
   "version": "APPVERSION_TO_INSERT",
-  "title": "Managed switch console preview",
-  "description": "Open source managed switch management console based on YANG models.",
+  "title": "Ethernet switch management preview",
+  "description": "An open source Ethernet switch management application based on YANG models with CLI, netconf, restconf and SNMP support.",
   "logo": "mgnt-switch-app.svg",
   "vendor": {
     "name": "Albrecht Lohofener",
