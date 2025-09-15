@@ -98,8 +98,8 @@ COPY --from=clixon_build /clixon/build/ /
 COPY motd /etc/motd
 COPY nginx.conf /etc/nginx/http.d/
 COPY index.html /var/www
-COPY start-container.sh /usr/local/bin/start-container.sh
-RUN chmod +x /usr/local/bin/start-container.sh
+COPY *.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/*.sh
 
 # Create symlink so you can run clixon without -f arg
 RUN ln -s /usr/local/etc/clixon/ietf-ip.xml /etc/clixon.xml 

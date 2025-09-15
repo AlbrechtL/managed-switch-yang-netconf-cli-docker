@@ -1,20 +1,33 @@
 services:
   mgnt-sw-yang:
     build:
-      context: .
+      context: . 
       dockerfile: Dockerfile
     image: mgnt-sw-yang-docker
     container_name: mgnt-sw-yang-docker
+
+    environment:
+      # Define which physical Ethernet switch ports shall be attach into the container
+      # If unset -> no switch ports are attached
+      SW_IF: "lan1, lan2, lan3, lan4"
+                    
     ports:
       # ssh console
       - "2222:22"
       # Webssh console
       - "8888:80"
       #- "443:443"
+
     volumes:
       - data:/storage/
+
     restart: unless-stopped
-    #network_mode: "host"
+
+    # The following settings are mandatory to run the this container
+    cap_add:
+      - NET_ADMIN
+    pid: "host"
+    privileged: true
 
 volumes:
   data:
