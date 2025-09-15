@@ -1,10 +1,10 @@
 services:
-  clixon:
+  mgnt-sw-yang:
     build:
       context: .
       dockerfile: Dockerfile
-    image: clixon-docker
-    container_name: clixon-docker
+    image: mgnt-sw-yang-docker
+    container_name: mgnt-sw-yang-docker
     ports:
       # ssh console
       - "2222:22"
@@ -14,6 +14,7 @@ services:
     volumes:
       - data:/storage/
     restart: unless-stopped
+    #network_mode: "host"
 
 volumes:
   data:

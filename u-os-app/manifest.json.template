@@ -1,0 +1,76 @@
+{
+  "manifestVersion": "0.2",
+  "version": "APPVERSION_TO_INSERT",
+  "title": "Managed switch console preview",
+  "description": "Open source managed switch console based on YANG models.",
+  "logo": "mngt-switch-app.svg",
+  "vendor": {
+    "name": "Albrecht Lohofener",
+    "url": "https://github.com/AlbrechtL/managed-switch-yang-netconf-cli-docker",
+    "email": "albrechtloh@gmx.de",
+    "street": "",
+    "zip": "",
+    "city": "",
+    "country": "Germany"
+  },
+  "services": {
+    "u-link-addon-u-link": {
+      "type": "docker-compose",
+      "config": {
+        "image": "local/mgnt-sw-yang-docker:latest",
+        "privileged": true,
+        "restart": "no",
+        "volumes": [
+          "data:/storage",
+          "licenses:/licenses",
+          "/dev:/dev"
+        ],
+        "containerName": "u-os-app-mgnt-sw-yang",
+        "ports": ["127.0.0.1:65432:8006"],
+        "pid": "host",
+        "capAdd": ["NET_ADMIN"],
+        "deviceCgroupRules": ["c *:* rwm"],
+        "environment": {
+          "IS_U_OS_APP": "y"
+        },
+        "extraHosts": ["host.docker.internal:host-gateway"]
+      }
+    }
+  },
+  "publish": {
+    "openwrt": {
+      "from": "http://127.0.0.1:65433",
+      "to": ""
+    }
+  },
+  "platform": ["ucu"],
+  "environments": {
+    "edgenode": {
+      "type": "docker-compose",
+      "config": {
+        "volumes": {
+          "data": {},
+          "licenses": {
+            "driver": "local-public"
+          }
+        }
+      }
+    }
+  },
+  "settings": {
+    "environmentVariables": [
+      {
+        "name": "SW_IF",
+        "label": "List of Ethernet switch ports",
+        "description": "List of Ethernet switch ports.",
+        "select": [
+          {
+            "label": "lan1, lan2, lan3, lan4",
+            "value": "lan1, lan2, lan3, lan4",
+            "default": true
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,135 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set Swap Space
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 10
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: network=host # Important to access local Docker registry
+
+      - name: Login into Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        env:
+          DOCKER_BUILD_RECORD_UPLOAD: false
+        with:
+          context: .
+          push: true
+          provenance: false
+          platforms: |
+            linux/x86_64
+            linux/arm64
+          build-args: |
+            BUILDKIT_MULTI_PLATFORM=1
+          tags: |
+            localhost:5000/local/mgnt-sw-yang-docker:latest
+
+      - name: Inspect
+        run: |
+          docker buildx imagetools inspect localhost:5000/local/mgnt-sw-yang-docker:latest
+
+      - name: Build and export
+        uses: docker/build-push-action@v6
+        env:
+          DOCKER_BUILD_SUMMARY: false
+          DOCKER_BUILD_RECORD_UPLOAD: false
+        with:
+          tags: mgnt-sw-yang-docker:latest
+          allow: security.insecure,network.host
+          outputs: type=docker,dest=/tmp/mgnt-sw-yang-docker-image.tar
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Docker Image
+          path: /tmp/mgnt-sw-yang-docker-image.tar
+
+      - name: Login to Weidmueller wmucdev
+        uses: docker/login-action@v3
+        with:
+          registry: wmucdev.azurecr.io
+          username: ${{ secrets.WMUCDEV_USERNAME }}
+          password: ${{ secrets.WMUCDEV_TOKEN }}
+
+      - name: Create Weidmueller u-OS app
+        id: create_u-os-app
+        run: |
+          # uc-aom-packager accept only version that has to be greater than the previous one. Lets use the datetime to ensure that.
+          DATETIME=$(date "+%Y.%m.%d.%H%M%S")
+
+          # uc-aom-packager allow only decimal numbers as version number for an unkonwn reason
+          # see https://github.com/weidmueller/uc-addon/blob/main/uc-manifest.schema-doc.md#version)
+          # So lets convert the git hash into a decimal value
+          GIT_HASH=`git rev-parse --short HEAD`
+          GIT_HASH_DECIMAL=$((16#$GIT_HASH))
+
+          # Create app version
+          APP_VERSION=$DATETIME-$GIT_HASH_DECIMAL
+
+          echo "***** Create manifest from template *****"
+          mv u-os-app/manifest.json.template u-os-app/manifest.json
+          sed -i 's/APPVERSION_TO_INSERT/'"$APP_VERSION"'/g' u-os-app/manifest.json
+          cat u-os-app/manifest.json | grep version
+
+          echo "***** Run uc-aom-packager to create the u-OS app *****"
+          # uc-aom-packager accepts only multiarch images. "--build-arg BUILDKIT_MULTI_PLATFORM=1" has to set to ensure that.
+          # uc-aom-packager needs to Docker registry credentials in a clear text file. Because of security concerns we use a local registry without credentials here.
+
+          docker run --rm --network=host --pull=always \
+          --mount src=$(pwd)/u-os-app,target=/tmp/u-os-app-build,type=bind wmucdev.azurecr.io/u-control/uc-aom-packager:0 \
+          uc-aom-packager push \
+          -m /tmp/u-os-app-build \
+          -s /tmp/u-os-app-build/source-credentials.json \
+          -t /tmp/u-os-app-build/target-credentials.json \
+          -v
+
+          echo "***** Create SWU app file*****"
+          docker run --rm --network=host --pull=always \
+          --mount src=$(pwd)/u-os-app,target=/tmp/u-os-app-build,type=bind wmucdev.azurecr.io/u-control/uc-aom-packager:0 \
+          uc-aom-packager \
+          export \
+          -t /tmp/u-os-app-build/target-credentials.json \
+          --version $APP_VERSION \
+          -o /tmp/u-os-app-build/u-os-app-build_$APP_VERSION.swu \
+          -v
+
+          find u-os-app/
+
+      - name: Archive artifacts (u-OS app)
+        if: always() && steps.create_u-os-app.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: u-OS app
+          path: u-os-app/u-os-app-build_*.swu/linux-arm64/*.swu
+          if-no-files-found: error
