@@ -121,7 +121,7 @@ jobs:
           find u-os-app/
 
           echo "***** Patching u-OS app *****"
-          cp u-os-app/add-reboot-false-too-swu u-os-app/u-os-app-build_$APP_VERSION.swu/linux-arm64/
+          sudo cp u-os-app/add-reboot-false-too-swu u-os-app/u-os-app-build_$APP_VERSION.swu/linux-arm64/
 
           cd u-os-app/u-os-app-build_$APP_VERSION.swu/linux-arm64
           ./add-reboot-false-too-swu mgnt-sw-yang-docker_$APP_VERSION.swu
