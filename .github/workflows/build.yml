@@ -122,9 +122,8 @@ jobs:
 
           echo "***** Patching u-OS app *****"
           sudo cp u-os-app/add-reboot-false-too-swu u-os-app/u-os-app-build_$APP_VERSION.swu/linux-arm64/
-
           cd u-os-app/u-os-app-build_$APP_VERSION.swu/linux-arm64
-          ./add-reboot-false-too-swu mgnt-sw-yang-docker_$APP_VERSION.swu
+          sudo ./add-reboot-false-too-swu mgnt-sw-yang-docker_$APP_VERSION.swu
 
       - name: Archive artifacts (u-OS app)
         if: always() && steps.create_u-os-app.outcome == 'success'
