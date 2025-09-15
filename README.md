@@ -22,4 +22,7 @@ The communication between the frontend and backend occurs over an unencrypted HT
 2. **Lack of User Management in the Web Interface:**
 The web interface does not include built-in user management. Any user who can access the web interface automatically control to Ethernet interface configuration. To enhance security, it is strongly recommended to place the web interface behind a reverse proxy with proper user authentication and access controls.
 
+3. **Privileged Mode Requirement for this Container:**
+The container must run in privileged mode to ensure exclusive access to the host's Ethernet interfaces. This is necessary for proper operation but comes with inherent security considerations.
+
 **Disclaimer:** This software container is a proof of concept and has not undergone comprehensive cybersecurity assessments. Users are cautioned that potential vulnerabilities may exist, posing risks to system security and data integrity. By deploying or using this container, users accept the associated risks, and the developers disclaim any responsibility for security incidents or data breaches. A thorough security evaluation, including penetration testing and compliance checks, is strongly advised before production deployment. The software is provided without warranty, and users are encouraged to provide feedback for collaborative efforts in addressing security concerns. Users acknowledge reading and understanding this disclaimer, assuming responsibility for ensuring their environment's security.
