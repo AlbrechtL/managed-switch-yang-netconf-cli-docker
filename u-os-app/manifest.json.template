@@ -2,7 +2,7 @@
   "manifestVersion": "0.2",
   "version": "APPVERSION_TO_INSERT",
   "title": "Managed switch console preview",
-  "description": "Open source managed switch console based on YANG models.",
+  "description": "Open source managed switch management console based on YANG models.",
   "logo": "mngt-switch-app.svg",
   "vendor": {
     "name": "Albrecht Lohofener",
