@@ -3,7 +3,7 @@
   "version": "APPVERSION_TO_INSERT",
   "title": "Managed switch console preview",
   "description": "Open source managed switch management console based on YANG models.",
-  "logo": "mngt-switch-app.svg",
+  "logo": "mgnt-switch-app.svg",
   "vendor": {
     "name": "Albrecht Lohofener",
     "url": "https://github.com/AlbrechtL/managed-switch-yang-netconf-cli-docker",
@@ -26,7 +26,7 @@
           "/dev:/dev"
         ],
         "containerName": "u-os-app-mgnt-sw-yang",
-        "ports": ["127.0.0.1:65432:8006"],
+        "ports": ["127.0.0.1:65433:80"],
         "pid": "host",
         "capAdd": ["NET_ADMIN"],
         "deviceCgroupRules": ["c *:* rwm"],
