@@ -56,17 +56,17 @@ if [ -n "${SW_IF:-}" ]; then
     OLD_IFS="$IFS"
     IFS=',' 
 
-    ip link add name swbr0 type bridge # Create a bridge for the switch ports
+    ip link add name br0 type bridge vlan_filtering 1 # Create a bridge for the switch ports
 
     # For all switch ports
     for iface in $SW_IF; do
         iface=$(echo "$iface" | xargs)  # Trim whitespace
         attach_eth_if "$iface" "$iface" # Move iface from host to container
-        ip link set dev "$iface" master swbr0 # Add iface to bridge
+        ip link set dev "$iface" master br0 # Add iface to bridge
     done
     IFS="$OLD_IFS"
 
-    ip link set dev swbr0 up
+    ip link set dev br0 up
 fi
 
 # Start processes
