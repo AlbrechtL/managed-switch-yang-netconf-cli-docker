@@ -1,8 +1,8 @@
 ============================================================
-        Managed Switch CLI - Secure Access Portal
+             Managed Switch Management Console
 ============================================================
 
-  Welcome to the Switch Management Console.
+  Welcome to the Switch Management Console CLI.
   This interface is powered by a YANG-based data model
   and built on Clixon, providing:
     • interactive CLI
