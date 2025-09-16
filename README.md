@@ -10,6 +10,7 @@ While this project is designed to be as generic as possible, development and tes
 I would like to thank the following open-source projects. Without these great works, this open-source switch would not be possible:  
 * [YangModels](https://github.com/YangModels/yang)
 * [OpenConfig](https://github.com/openconfig/public)
+* [YANG catalog](https://www.yangcatalog.org/YANG-modules/)
 * [clixon](https://www.clicon.org/)  
 * [clixon backend helper](https://github.com/MontaVista-OpenSourceTechnology/clixon-backend-helper)  
 * [WebSSH](https://github.com/huashengdun/webssh)  
