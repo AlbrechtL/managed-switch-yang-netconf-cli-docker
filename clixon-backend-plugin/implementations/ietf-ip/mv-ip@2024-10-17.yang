@@ -8,8 +8,11 @@ module mv-ip {
     import iana-if-type {
 	    prefix ianaift;
     }
+    import openconfig-if-ethernet {
+        prefix oceth;
+    }
     import openconfig-vlan {
-        prefix vlan;
+        prefix ocvlan;
     }
 
     organization

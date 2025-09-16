@@ -52,6 +52,7 @@ is_if_mib = clixon_beh.is_feature_set("ietf-interfaces", "if-mib")
 
 IETF_INTERFACES_NAMESPACE = "urn:ietf:params:xml:ns:yang:ietf-interfaces"
 IETF_IP_NAMESPACE = "urn:ietf:params:xml:ns:yang:ietf-ip"
+OPENCONFIG_INTERFACES_ETHERNET_NAMESPACE = "http://openconfig.net/yang/interfaces/ethernet"
 
 # We create the main map first because it's used by everything else.
 ietfip = tf.YangElemMap(None, "/")
@@ -692,6 +693,10 @@ s.add_leaf("/interfaces/interface",
 
 s.add_leaf("/interfaces/interface",
            InterfaceEnabled("enabled", tf.YangType.LEAF))
+
+# s.add_map("/interfaces/interface",
+#           tf.YangElem("ethernet", tf.YangType.CONTAINER,
+#                       namespace=OPENCONFIG_INTERFACES_ETHERNET_NAMESPACE))
 
 # Set up /interfaces-state here.  We have to create the maps first
 # because we have to create them in forward order so we can get the
