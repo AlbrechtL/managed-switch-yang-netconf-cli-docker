@@ -61,12 +61,17 @@
     "environmentVariables": [
       {
         "name": "SW_IF",
-        "label": "List of Ethernet switch ports",
+        "label": "Ethernet switch hardware",
         "description": "List of Ethernet switch ports.",
         "select": [
           {
-            "label": "lan1, lan2, lan3, lan4",
+            "label": "RPi switch HAT (lan1 to lan4)",
             "value": "lan1, lan2, lan3, lan4",
+            "default": true
+          },
+          {
+            "label": "UC20-M4000 software switch (eth-x5 to eth-x7)",
+            "value": "eth-x5, eth-x6, eth-x7",
             "default": true
           },
           {
