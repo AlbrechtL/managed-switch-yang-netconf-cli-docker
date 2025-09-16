@@ -21,7 +21,7 @@ services:
     volumes:
       - data:/storage/
 
-    restart: unless-stopped
+    #restart: unless-stopped
 
     # The following settings are mandatory to run the this container
     cap_add:
