@@ -23,6 +23,8 @@ $ docker compose up
 
 Simply open a web browser and navigate to `http://localhost:<host port>/` e.g. `http://localhost:8888/`
 
+![WEBSSH](pictures/screenshot-web-interface.png)
+
 ### restconf
 
 ```bash
