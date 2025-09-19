@@ -107,7 +107,7 @@ RUN ln -s /usr/local/etc/clixon/ietf-ip.xml /etc/clixon.xml
 # Expose https port for restconf
 EXPOSE 22/tcp
 EXPOSE 80/tcp
-EXPOSE 443/tcp
+
 
 # Start daemons
 CMD ["/usr/local/bin/start-container.sh"]

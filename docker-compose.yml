@@ -6,17 +6,22 @@ services:
     image: mgnt-sw-yang-docker
     container_name: mgnt-sw-yang-docker
 
-    environment:
-      # Define which physical Ethernet switch ports shall be attach into the container
-      # If unset -> no switch ports are attached
-      SW_IF: "lan1, lan2, lan3, lan4"
+    # environment:
+    #   # Define which physical Ethernet switch ports shall be attach into the container
+    #   # If unset -> no switch ports are attached
+    #   SW_IF: "lan1, lan2, lan3, lan4"
                     
     ports:
-      # ssh console
+      # SSH console
+      # Use user "cli" without an password to get the CLI prompt
       - "2222:22"
-      # Webssh console
+
+      # Webssh console and RESTCONF
+      # Web interface incl. webssh: http://localhost:8888
+      # Only webssh: http://localhost:8888/webssh/
+      # RESTCONF: http://localhost:8888/rest/
       - "8888:80"
-      #- "443:443"
+
 
     volumes:
       - data:/storage/

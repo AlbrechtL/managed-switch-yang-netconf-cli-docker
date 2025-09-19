@@ -71,8 +71,8 @@ fi
 
 # Start processes
 exec multirun \
-  "clixon_backend -F" \
+  "clixon_backend -F -D restconf -s startup" \
   "/usr/sbin/sshd -D" \
-  "wssh --address='127.0.0.1' --port=8888" \
+  "wssh --address='127.0.0.1' --port=2000" \
   "nginx"
 
