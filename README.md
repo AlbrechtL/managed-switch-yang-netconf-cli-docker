@@ -33,7 +33,51 @@ e.g. getting port info
 
 ```bash
 $ curl -X GET http://localhost:8888/rest/restconf/data/ietf-interfaces:interfaces
-{"ietf-interfaces:interfaces":{"interface":[{"name":"eth0","type":"iana-if-type:ethernetCsmacd","enabled":true,"oper-status":"up","phys-address":"82:09:89:a4:02:6a","statistics":{"discontinuity-time":"2025-09-15T19:51:07+00:00","in-octets":"2704","in-unicast-pkts":"2704","in-multicast-pkts":"0","in-discards":0,"in-errors":0,"out-octets":"308","out-unicast-pkts":"308","out-discards":0,"out-errors":0},"ietf-ip:ipv4":{"enabled":true,"forwarding":true,"mtu":1500,"address":[{"ip":"172.21.0.2","prefix-length":16,"origin":"static"}],"neighbor":[{"ip":"172.21.0.1","link-layer-address":"ae:89:d7:81:67:67","origin":"dynamic"}]},"ietf-ip:ipv6":{"enabled":true,"forwarding":false,"mtu":1500,"dup-addr-detect-transmits":1,"autoconf":{"create-global-addresses":true}}},{"name":"lo","type":"iana-if-type:softwareLoopback","enabled":true,"oper-status":"up","phys-address":"00:00:00:00:00:00","statistics":{"discontinuity-time":"2025-09-15T19:51:07+00:00","in-octets":"468","in-unicast-pkts":"468","in-multicast-pkts":"0","in-discards":0,"in-errors":0,"out-octets":"468","out-unicast-pkts":"468","out-discards":0,"out-errors":0},"ietf-ip:ipv4":{"enabled":true,"forwarding":true,"mtu":65535,"address":[{"ip":"127.0.0.1","prefix-length":8,"origin":"static"}]},"ietf-ip:ipv6":{"enabled":true,"forwarding":false,"mtu":65535,"address":[{"ip":"::1","prefix-length":128,"origin":"static","status":"preferred"}],"dup-addr-detect-transmits":1,"autoconf":{"create-global-addresses":true}}}]}}
+{
+  "ietf-interfaces:interfaces": {
+    "interface": [
+      {
+        "name": "eth0",
+        "type": "iana-if-type:ethernetCsmacd",
+        "enabled": true,
+        "oper-status": "up",
+        "phys-address": "82:09:89:a4:02:6a",
+        "statistics": {
+          "discontinuity-time": "2025-09-15T19:51:07+00:00",
+          "in-octets": "2704",
+          "in-unicast-pkts": "2704",
+          "in-multicast-pkts": "0",
+          "in-discards": 0,
+          "in-errors": 0,
+          "out-octets": "308",
+          "out-unicast-pkts": "308",
+          "out-discards": 0,
+          "out-errors": 0
+        },
+        [...]
+      },
+      {
+        "name": "lo",
+        "type": "iana-if-type:softwareLoopback",
+        "enabled": true,
+        "oper-status": "up",
+        "phys-address": "00:00:00:00:00:00",
+        "statistics": {
+          "discontinuity-time": "2025-09-15T19:51:07+00:00",
+          "in-octets": "468",
+          "in-unicast-pkts": "468",
+          "in-multicast-pkts": "0",
+          "in-discards": 0,
+          "in-errors": 0,
+          "out-octets": "468",
+          "out-unicast-pkts": "468",
+          "out-discards": 0,
+          "out-errors": 0
+        },
+        [...]
+    ]
+  }
+}
 ```
 
 ## Acknowledgements
