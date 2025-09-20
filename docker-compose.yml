@@ -23,6 +23,9 @@ services:
       # RESTCONF: http://localhost:8888/rest/
       - "8888:80"
 
+      # SNMP ports
+      - "1161:161"
+      - "1162:162"
 
     volumes:
       - data:/storage/

@@ -74,5 +74,7 @@ exec multirun \
   "clixon_backend -F -D restconf -s startup" \
   "/usr/sbin/sshd -D" \
   "wssh --address='127.0.0.1' --port=2000" \
-  "nginx"
+  "nginx" \
+  "snmpd -f -Lo -I -ifTable -I -system_mib -I -sysORTable" \
+  "sh -c 'sleep 5 && clixon_snmp -f /usr/local/etc/clixon/ietf-ip.xml'"
 

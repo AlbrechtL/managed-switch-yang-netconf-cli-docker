@@ -68,19 +68,28 @@ RUN apk update \
         openssh \
         iproute2 \
         nginx \
+        libsmi \
     && adduser -D -H -G www-data www-data \
     && adduser -D -H clicon \
     && sed -i 's/^worker_processes.*/worker_processes 1;daemon off;/' /etc/nginx/nginx.conf \
     && sed -i '/^#PermitEmptyPasswords no/c\PermitEmptyPasswords yes' /etc/ssh/sshd_config 
 
+# Configure webssh
+RUN pip install webssh
+
+# Copy clixon, cligen and clixon backend helper from build stage
+COPY --from=clixon_build /clixon/build/ /
+
 # Some custom configuration for SNMP
 RUN echo "master  agentx" > /etc/snmp/snmpd.conf \
-    && echo "agentaddress  127.0.0.1" >> /etc/snmp/snmpd.conf \
+    && echo "agentaddress  0.0.0.0" >> /etc/snmp/snmpd.conf \
     && echo "rwcommunity   public  localhost" >> /etc/snmp/snmpd.conf \
     && echo "agentxsocket  unix:/var/run/snmp.sock" >> /etc/snmp/snmpd.conf \
     && echo "agentxperms   777 777" >> /etc/snmp/snmpd.conf \
     && echo "trap2sink     localhost public 162" >> /etc/snmp/snmpd.conf \
-    && echo "disableAuthorization yes" >> /etc/snmp/snmptrapd.conf
+    && echo "disableAuthorization yes" >> /etc/snmp/snmptrapd.conf \
+    \
+    && smidump -f yang /usr/share/snmp/mibs/IF-MIB.txt > /usr/local/share/clixon/IF-MIB.yang
 
 # Configure sshd for CLI (no password required)
 RUN mkdir -p /home/cli \
@@ -93,11 +102,9 @@ RUN echo "Subsystem netconf /usr/local/bin/clixon_netconf" >> /etc/ssh/sshd_conf
     && passwd -u clicon \
     && echo "clicon ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-# Configure webssh
-RUN pip install webssh
+
 
 # Copy stuff into this container
-COPY --from=clixon_build /clixon/build/ /
 COPY motd /etc/motd
 COPY nginx.conf /etc/nginx/http.d/
 COPY index.html /var/www
@@ -110,7 +117,8 @@ RUN ln -s /usr/local/etc/clixon/ietf-ip.xml /etc/clixon.xml
 # Expose https port for restconf
 EXPOSE 22/tcp
 EXPOSE 80/tcp
-
+EXPOSE 161/udp
+EXPOSE 162/udp
 
 # Start daemons
 CMD ["/usr/local/bin/start-container.sh"]

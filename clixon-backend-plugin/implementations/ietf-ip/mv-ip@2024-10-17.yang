@@ -14,6 +14,9 @@ module mv-ip {
     import openconfig-vlan {
         prefix ocvlan;
     }
+    import IF-MIB {
+        prefix ifmib;
+    }
 
     organization
 	"MontaVista Software";

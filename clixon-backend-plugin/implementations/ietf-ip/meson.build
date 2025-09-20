@@ -70,6 +70,12 @@ install_data(['iana-if-type@2014-05-08.yang',
           'openconfig-vlan-types.yang',
           'openconfig-vlan.yang',
           'openconfig-yang-types.yang',
+          'IANAifType-MIB@2007-09-13.yang',
+          'tailf-common@2023-03-02.yang',
+          'tailf-cli-extensions@2021-12-17.yang',
+          'tailf-meta-extensions@2017-03-08.yang',
+          'SNMPv2-TC@2016-08-18.yang',
+          'ietf-yang-smiv2@2012-06-22.yang',
 	      'mv-ip@2024-10-17.yang'],
              install_dir: my_datadir + '/clixon/' + appname)
 
