@@ -24,8 +24,7 @@ services:
       - "8888:80"
 
       # SNMP ports
-      - "1161:161"
-      - "1162:162"
+      - "1161:161/udp"
 
     volumes:
       - data:/storage/

@@ -124,6 +124,24 @@ $ ssh -s clicon@localhost -p 2222 netconf
 ##
 ```
 
+### SNMP
+
+```bash
+$ snmpwalk -v2c -c public <host IP>:<host port> 
+```
+
+e.g. 
+
+```bash
+$ snmpwalk -v2c -c public localhost:1161
+iso.3.6.1.2.1.3.1.1.1.2.1.172.21.0.1 = INTEGER: 2
+iso.3.6.1.2.1.3.1.1.2.2.1.172.21.0.1 = Hex-STRING: AE 89 D7 81 67 67 
+iso.3.6.1.2.1.3.1.1.3.2.1.172.21.0.1 = IpAddress: 172.21.0.1
+iso.3.6.1.2.1.4.1.0 = INTEGER: 1
+iso.3.6.1.2.1.4.2.0 = INTEGER: 64
+[...]
+```
+
 ## Acknowledgements
 
 I would like to thank the following open-source projects. Without these great works, this open-source switch would not be possible:  

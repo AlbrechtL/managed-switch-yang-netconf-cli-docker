@@ -84,6 +84,7 @@ COPY --from=clixon_build /clixon/build/ /
 RUN echo "master  agentx" > /etc/snmp/snmpd.conf \
     && echo "agentaddress  0.0.0.0" >> /etc/snmp/snmpd.conf \
     && echo "rwcommunity   public  localhost" >> /etc/snmp/snmpd.conf \
+    && echo "rocommunity   public  default" >> /etc/snmp/snmpd.conf \
     && echo "agentxsocket  unix:/var/run/snmp.sock" >> /etc/snmp/snmpd.conf \
     && echo "agentxperms   777 777" >> /etc/snmp/snmpd.conf \
     && echo "trap2sink     localhost public 162" >> /etc/snmp/snmpd.conf \
@@ -102,8 +103,6 @@ RUN echo "Subsystem netconf /usr/local/bin/clixon_netconf" >> /etc/ssh/sshd_conf
     && passwd -u clicon \
     && echo "clicon ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-
-
 # Copy stuff into this container
 COPY motd /etc/motd
 COPY nginx.conf /etc/nginx/http.d/
@@ -118,7 +117,6 @@ RUN ln -s /usr/local/etc/clixon/ietf-ip.xml /etc/clixon.xml
 EXPOSE 22/tcp
 EXPOSE 80/tcp
 EXPOSE 161/udp
-EXPOSE 162/udp
 
 # Start daemons
 CMD ["/usr/local/bin/start-container.sh"]
