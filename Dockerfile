@@ -70,7 +70,8 @@ RUN apk update \
         nginx \
     && adduser -D -H -G www-data www-data \
     && adduser -D -H clicon \
-    && sed -i 's/^worker_processes.*/worker_processes 1;daemon off;/' /etc/nginx/nginx.conf
+    && sed -i 's/^worker_processes.*/worker_processes 1;daemon off;/' /etc/nginx/nginx.conf \
+    && sed -i '/^#PermitEmptyPasswords no/c\PermitEmptyPasswords yes' /etc/ssh/sshd_config 
 
 # Some custom configuration for SNMP
 RUN echo "master  agentx" > /etc/snmp/snmpd.conf \
@@ -81,14 +82,16 @@ RUN echo "master  agentx" > /etc/snmp/snmpd.conf \
     && echo "trap2sink     localhost public 162" >> /etc/snmp/snmpd.conf \
     && echo "disableAuthorization yes" >> /etc/snmp/snmptrapd.conf
 
-
-# Configure sshd
-RUN echo "Subsystem netconf /usr/local/bin/clixon_netconf" >> /etc/ssh/sshd_config \
-    && mkdir -p /home/cli \
+# Configure sshd for CLI (no password required)
+RUN mkdir -p /home/cli \
     && adduser -D -s /usr/local/bin/clixon_cli -G clicon -h /home/cli -H cli \
     && passwd -u cli \
-    && echo "cli ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \
-    && sed -i '/^#PermitEmptyPasswords no/c\PermitEmptyPasswords yes' /etc/ssh/sshd_config 
+    && echo "cli ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+# Configure sshd for netconf (no password required)
+RUN echo "Subsystem netconf /usr/local/bin/clixon_netconf" >> /etc/ssh/sshd_config \
+    && passwd -u clicon \
+    && echo "clicon ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # Configure webssh
 RUN pip install webssh

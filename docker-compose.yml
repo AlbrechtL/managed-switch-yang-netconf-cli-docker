@@ -14,6 +14,7 @@ services:
     ports:
       # SSH console
       # Use user "cli" without an password to get the CLI prompt
+      # Or user "clicon" without an password to use NETCONF
       - "2222:22"
 
       # Webssh console and RESTCONF

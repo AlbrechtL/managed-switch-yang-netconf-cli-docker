@@ -19,13 +19,40 @@ Run container
 $ docker compose up
 ```
 
+See also [`docker-compose.yml`](https://github.com/AlbrechtL/managed-switch-yang-netconf-cli-docker/blob/main/docker-compose.yml).
+
+
 ### CLI
 
-Simply open a web browser and navigate to `http://localhost:<host port>/` e.g. `http://localhost:8888/`
+**Web browser**
+Simply open a web browser and navigate to `http://<host IP>:<host port>/` e.g. `http://localhost:8888/`
 
 ![WEBSSH](pictures/screenshot-web-interface.png)
 
-### restconf
+**SSH**
+
+```bash
+$ ssh cli@<host IP> -p <host port> 
+```
+e.g. 
+
+```bash
+$ ssh cli@localhost -p 2222
+============================================================
+             Managed Switch Management Console
+============================================================
+
+  Welcome to the Switch Management Console CLI.
+  This interface is powered by a YANG-based data model
+  and built on Clixon, providing:
+    • interactive CLI
+    • RESTCONF and NETCONF interfaces generated from YANG models
+
+============================================================
+switch>
+```
+
+### RESTCONF
 
 ```bash
 $ curl -X GET http://<host ip>:<host port>/rest/restconf/data/<command>
@@ -80,6 +107,20 @@ $ curl -X GET http://localhost:8888/rest/restconf/data/ietf-interfaces:interface
     ]
   }
 }
+```
+### NETCONF
+
+```bash
+$ ssh -s clicon@<host IP> -p <host port> netconf
+```
+e.g. 
+
+```bash
+$ ssh -s clicon@localhost -p 2222 netconf
+
+#935
+<hello xmlns="urn:ietf:params:xml:ns:netconf:base:1.0"><capabilities><capability>urn:ietf:params:netconf:base:1.1</capability><capability>urn:ietf:params:netconf:base:1.0</capability><capability>urn:ietf:params:netconf:capability:yang-library:1.1?revision=2019-01-04&amp;module-set-id=0</capability><capability>urn:ietf:params:netconf:capability:candidate:1.0</capability><capability>urn:ietf:params:netconf:capability:validate:1.1</capability><capability>urn:ietf:params:netconf:capability:startup:1.0</capability><capability>urn:ietf:params:netconf:capability:xpath:1.0</capability><capability>urn:ietf:params:netconf:capability:with-defaults:1.0?basic-mode=explicit&amp;also-supported=report-all,trim,report-all-tagged</capability><capability>urn:ietf:params:netconf:capability:notification:1.0</capability><capability>urn:ietf:params:xml:ns:yang:ietf-netconf-monitoring</capability></capabilities><session-id>2</session-id></hello>
+##
 ```
 
 ## Acknowledgements
