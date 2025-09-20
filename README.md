@@ -25,6 +25,7 @@ See also [`docker-compose.yml`](https://github.com/AlbrechtL/managed-switch-yang
 ### CLI
 
 **Web browser**
+
 Simply open a web browser and navigate to `http://<host IP>:<host port>/` e.g. `http://localhost:8888/`
 
 ![WEBSSH](pictures/screenshot-web-interface.png)
