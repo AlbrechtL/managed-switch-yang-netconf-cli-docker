@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "clixon_backend.h": "c",
+        "clixon_log.h": "c"
+    }
+}

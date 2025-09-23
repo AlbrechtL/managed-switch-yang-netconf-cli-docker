@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# Kill running clixon_backend instances
+clixon_backend -z -f eth-switch.xml
+
+# Check if the plugin file exists
+if [ ! -f eth-switch_backend_plugin.so ]; then
+    echo "Error: eth-switch_backend_plugin.so not found."
+    exit 1
+fi
+
+# Remove temporary files if they exist after clixon_backend ends
+cleanup() {
+    echo "clixon_backend ended. Removing temporary files..."
+    rm -f tmp_db
+    rm -f running_db
+    rm -f candidate_db
+}
+trap cleanup INT TERM EXIT
+
+# Start clixon_backend with the specified configuration file in the foreground
+clixon_backend -F -D default -f eth-switch.xml 
+
