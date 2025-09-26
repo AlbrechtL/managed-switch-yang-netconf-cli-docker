@@ -82,5 +82,4 @@ exec multirun \
   "wssh --address='127.0.0.1' --port=2000" \
   "nginx" \
   "snmpd -f -Lo -I -ifTable -I -system_mib -I -sysORTable" \
-  "sh -c 'sleep 5 && clixon_snmp -f /usr/local/etc/clixon/ietf-ip.xml'"
-
+  "sh -c 'sleep 10 && clixon_snmp -f /usr/local/etc/clixon/ietf-ip.xml -D init'"
