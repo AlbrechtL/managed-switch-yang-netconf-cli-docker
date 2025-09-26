@@ -56,7 +56,13 @@ if [ -n "${SW_IF:-}" ]; then
     OLD_IFS="$IFS"
     IFS=',' 
 
-    ip link add name br0 type bridge vlan_filtering 1 # Create a bridge for the switch ports
+    # Try to create bridge with vlan_filtering enabled
+    if ip link add name br0 type bridge vlan_filtering 1 2>/dev/null; then
+      echo "Bridge br0 created with vlan_filtering enabled."
+    else
+      echo "vlan_filtering not supported, creating bridge br0 without vlan_filtering."
+      ip link add name br0 type bridge
+    fi
 
     # For all switch ports
     for iface in $SW_IF; do
