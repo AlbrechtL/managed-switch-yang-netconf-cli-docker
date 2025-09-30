@@ -2,9 +2,19 @@
   <autocli>
     <module-default>false</module-default>
       <rule>
-        <name>include openconfig yang</name>
+        <name>include openconfig ip yang</name>
         <operation>enable</operation>
-        <module-name>openconfig-*</module-name>
+        <module-name>openconfig-if-ip</module-name>
+     </rule>
+     <rule>
+        <name>include openconfig vlan yang</name>
+        <operation>enable</operation>
+        <module-name>openconfig-vlan</module-name>
+     </rule>
+     <rule>
+        <name>include openconfig Ethernet yang</name>
+        <operation>enable</operation>
+        <module-name>openconfig-interfaces</module-name>
      </rule>
   </autocli>
 </clixon-config>

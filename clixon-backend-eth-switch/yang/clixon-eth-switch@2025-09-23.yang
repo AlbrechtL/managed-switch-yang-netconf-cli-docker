@@ -1,14 +1,16 @@
 module clixon-eth-switch{
     yang-version 1.1;
     namespace "urn:idontknow:ethswitch";
-    prefix ethswitch;
+    prefix eth-switch;
 
-
+    import openconfig-if-ip {
+        prefix oc-ip;
+    }
     import openconfig-if-ethernet {
-        prefix oceth;
+        prefix oc-eth;
     }
     import openconfig-vlan {
-        prefix ocvlan;
+        prefix oc-vlan;
     }
 
 

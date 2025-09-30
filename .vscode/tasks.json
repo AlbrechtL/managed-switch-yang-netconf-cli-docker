@@ -12,7 +12,8 @@
                 "${fileDirname}/${fileBasenameNoExtension}.so",
                 "-Wall",
                 "-shared",
-                "-fPIC"
+                "-fPIC",
+                "-ljansson",
             ],
             "options": {
                 "cwd": "${fileDirname}"

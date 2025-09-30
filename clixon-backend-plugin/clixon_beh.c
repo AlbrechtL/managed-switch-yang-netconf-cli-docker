@@ -39,6 +39,8 @@
 
 #include "clixon_beh.h"
 
+#define NAME "clixon-beh"
+
 static int
 clixon_beh_vasprintf(char **rstr, const char *fmt, va_list va)
 {
@@ -576,6 +578,8 @@ clixon_beh_commit(clixon_handle h, transaction_data td)
     int rv = 0;
     struct clixon_beh_plugin *p;
     struct clixon_beh_trans *bt = transaction_arg(td);
+
+    clixon_log(h, LOG_INFO, "[%s]: clixon_beh_commit run", NAME);
 
     clixon_beh_for_each_plugin(p) {
 	if (p->api)
