@@ -3,16 +3,12 @@ module clixon-eth-switch{
     namespace "urn:idontknow:ethswitch";
     prefix eth-switch;
 
-    import openconfig-if-ip {
-        prefix oc-ip;
-    }
-    import openconfig-if-ethernet {
-        prefix oc-eth;
-    }
     import openconfig-vlan {
         prefix oc-vlan;
     }
-
+    import openconfig-interfaces {
+        prefix oc-if;
+    }
 
     revision 2025-09-23 {
 	description

@@ -1,6 +1,10 @@
 {
     "files.associations": {
         "clixon_backend.h": "c",
-        "clixon_log.h": "c"
+        "clixon_log.h": "c",
+        "compare": "c",
+        "type_traits": "c",
+        "clixon.h": "c",
+        "cligen.h": "c"
     }
 }

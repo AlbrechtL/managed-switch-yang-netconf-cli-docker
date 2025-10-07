@@ -496,6 +496,8 @@ clixon_beh_begin(clixon_handle h, transaction_data td)
     struct clixon_beh_plugin *p;
     struct clixon_beh_trans *bt;
 
+    clixon_debug(CLIXON_DBG_DEFAULT, "clixon_be_begin()\n");
+
     bt = calloc(1, sizeof(*bt));
     if (!bt) {
 	clixon_err(OE_XML, 0, "Out of memory");
@@ -527,6 +529,8 @@ clixon_beh_end(clixon_handle h, transaction_data td)
     struct clixon_beh_plugin *p;
     struct clixon_beh_trans *bt = transaction_arg(td);
 
+    clixon_debug(CLIXON_DBG_DEFAULT, "clixon_be_end()\n");
+
     clixon_beh_for_each_plugin(p) {
 	if (p->api)
 	    rv = clixon_beh_trans_call_one(p, p->api->end, bt);
@@ -545,6 +549,8 @@ clixon_beh_validate(clixon_handle h, transaction_data td)
     struct clixon_beh_plugin *p;
     struct clixon_beh_trans *bt = transaction_arg(td);
 
+    clixon_debug(CLIXON_DBG_DEFAULT, "clixon_be_validate()\n");
+
     clixon_beh_for_each_plugin(p) {
 	if (p->api)
 	    rv = clixon_beh_trans_call_one(p, p->api->validate, bt);
@@ -561,6 +567,8 @@ clixon_beh_complete(clixon_handle h, transaction_data td)
     int rv = 0;
     struct clixon_beh_plugin *p;
     struct clixon_beh_trans *bt = transaction_arg(td);
+
+    clixon_debug(CLIXON_DBG_DEFAULT, "clixon_be_complete()\n");
 
     clixon_beh_for_each_plugin(p) {
 	if (p->api)
@@ -579,7 +587,7 @@ clixon_beh_commit(clixon_handle h, transaction_data td)
     struct clixon_beh_plugin *p;
     struct clixon_beh_trans *bt = transaction_arg(td);
 
-    clixon_log(h, LOG_INFO, "[%s]: clixon_beh_commit run", NAME);
+    clixon_debug(CLIXON_DBG_DEFAULT, "clixon_be_commit()\n");
 
     clixon_beh_for_each_plugin(p) {
 	if (p->api)
@@ -598,6 +606,8 @@ clixon_beh_commit_done(clixon_handle h, transaction_data td)
     struct clixon_beh_plugin *p;
     struct clixon_beh_trans *bt = transaction_arg(td);
 
+    clixon_debug(CLIXON_DBG_DEFAULT, "clixon_be_done()\n");
+
     clixon_beh_for_each_plugin(p) {
 	if (p->api)
 	    rv = clixon_beh_trans_call_one(p, p->api->commit_done, bt);
@@ -615,6 +625,8 @@ clixon_beh_revert(clixon_handle h, transaction_data td)
     struct clixon_beh_plugin *p;
     struct clixon_beh_trans *bt = transaction_arg(td);
 
+    clixon_debug(CLIXON_DBG_DEFAULT, "clixon_be_revert()\n");
+
     clixon_beh_for_each_plugin(p) {
 	if (p->api)
 	    rv = clixon_beh_trans_call_one(p, p->api->revert, bt);
@@ -631,6 +643,8 @@ clixon_beh_abort(clixon_handle h, transaction_data td)
     int rv = 0;
     struct clixon_beh_plugin *p;
     struct clixon_beh_trans *bt = transaction_arg(td);
+
+    clixon_debug(CLIXON_DBG_DEFAULT, "clixon_be_abort()\n");
 
     if (!bt)
 	return 0;
@@ -664,6 +678,8 @@ clixon_beh_statedata(clixon_handle h, cvec *nsc, char *xpath, cxobj *xtop)
     int rv = 0;
     struct clixon_beh_plugin *p = plugins;
 
+    clixon_debug(CLIXON_DBG_DEFAULT, "clixon_be_statedata()\n");
+
     clixon_beh_for_each_plugin(p) {
 	rv = 0;
 	if (p->api && p->api->statedata &&
@@ -682,6 +698,8 @@ clixon_beh_system_only(clixon_handle h, cvec *nsc, char *xpath, cxobj *xtop)
 {
     int rv = 0;
     struct clixon_beh_plugin *p = plugins;
+
+    clixon_debug(CLIXON_DBG_DEFAULT, "clixon_be_system_only()\n");
 
     clixon_beh_for_each_plugin(p) {
 	rv = 0;
@@ -702,6 +720,8 @@ clixon_beh_exit(clixon_handle h)
     struct clixon_beh *beh = NULL;
     struct clixon_beh_plugin *p, *p2;
     const struct clixon_beh_api *api;
+
+    clixon_debug(CLIXON_DBG_DEFAULT, "clixon_be_exit()\n");
 
     if (plugins)
 	beh = plugins->beh;
@@ -750,6 +770,8 @@ clixon_beh_pre_daemon(clixon_handle h)
     int rv = 0;
     struct clixon_beh_plugin *p;
 
+    clixon_debug(CLIXON_DBG_DEFAULT, "clixon_be_pre_daemon()\n");
+
     clixon_beh_for_each_plugin(p) {
 	if (p->api && p->api->pre_daemon)
 	    rv = p->api->pre_daemon(p);
@@ -765,6 +787,8 @@ clixon_beh_start(clixon_handle h)
 {
     int rv = 0;
     struct clixon_beh_plugin *p;
+
+    clixon_debug(CLIXON_DBG_DEFAULT, "clixon_be_start()\n");
 
     clixon_beh_for_each_plugin(p) {
 	if (p->api && p->api->start)
@@ -782,6 +806,8 @@ clixon_beh_yang_patch(clixon_handle h, yang_stmt *yang)
     int rv = 0;
     struct clixon_beh_plugin *p;
 
+    clixon_debug(CLIXON_DBG_DEFAULT, "clixon_be_yang_patch()\n");
+
     clixon_beh_for_each_plugin(p) {
 	if (p->api && p->api->yang_patch)
 	    rv = p->api->yang_patch(p, yang);
@@ -797,6 +823,8 @@ clixon_beh_daemon(clixon_handle h)
 {
     int rv = 0;
     struct clixon_beh_plugin *p;
+
+    clixon_debug(CLIXON_DBG_DEFAULT, "clixon_be_daemon()\n");
 
     clixon_beh_for_each_plugin(p) {
 	if (p->api && p->api->daemon)
@@ -814,6 +842,8 @@ clixon_beh_reset(clixon_handle h, const char *db)
     int rv = 0;
     struct clixon_beh_plugin *p;
 
+    clixon_debug(CLIXON_DBG_DEFAULT, "clixon_be_reset()\n");
+
     clixon_beh_for_each_plugin(p) {
 	if (p->api && p->api->reset)
 	    rv = p->api->reset(p, db);
@@ -829,6 +859,8 @@ clixon_beh_lockdb(clixon_handle h, char *db, int lock, int id)
 {
     int rv = 0;
     struct clixon_beh_plugin *p;
+
+    clixon_debug(CLIXON_DBG_DEFAULT, "clixon_be_lockdb()\n");
 
     clixon_beh_for_each_plugin(p) {
 	if (p->api && p->api->lockdb)
@@ -1146,7 +1178,7 @@ clixon_plugin_init(clixon_handle h) {
     char *plugin_dir = NULL;
     struct clixon_beh *beh = NULL;
 
-    clixon_debug(CLIXON_DBG_DEFAULT, "clixon_be_helper Entry\n");
+    clixon_debug(CLIXON_DBG_DEFAULT, "clixon_plugin_init()\n");
 
     beh = calloc(1, sizeof(*beh));
     if (!beh) {

@@ -65,68 +65,77 @@
 
 static int start(clixon_handle h)
 {
-	cxobj *xtop = NULL;
-	cbuf  *cb = NULL;
-	cvec  *nsc1 = NULL;
-	cxobj *xt = NULL;
 	int   retval = -1;
 
 	clixon_log(h, LOG_INFO, "[%s]: start run", NAME);
 
+    retval = 0;
+done:
+    return retval;
+}
+
+int reset(clixon_handle h, const char   *db)
+{
+	cxobj *xt = NULL;
+	cbuf  *cb = NULL;
+	cbuf  *cbret = NULL;
+	int   retval = -1;
+	yang_stmt *yspec;
+
+	clixon_log(h, LOG_INFO, "[%s]: reset run", NAME);
+
 	if ((cb = cbuf_new()) == NULL) {
-		clixon_log(h, LOG_ERR, "[%s]: cbuf_new", NAME);
+		clixon_log(h, LOG_ERR, "[%s]: cbuf_new cb", NAME);
 		goto done;
 	}
 
-	/* Get running datastore root */
-	/* ToDo: Not working*/
-	if (xmldb_get(h, "running", NULL, "/", &xtop) < 0)
-		goto done;
+	if ((cbret = cbuf_new()) == NULL){
+        clixon_log(h, LOG_ERR, "[%s]: cbuf_new cbret", NAME);
+        goto done;
+    }
 
-	cprintf(cb, "<config>\n"
-   "<interfaces xmlns=\"http://openconfig.net/yang/interfaces\">\n"
-      "<interface>\n"
-         "<name>lan1</name>\n"
-         "<config xmlns:ianaift=\"urn:ietf:params:xml:ns:yang:iana-if-type\">\n"
-            "<name>lan1</name>\n"
-            "<type>ianaift:ethernetCsmacd</type>\n"
-            "<loopback-mode>NONE</loopback-mode>\n"
-            "<enabled>true</enabled>\n"
-            "<tpid xmlns=\"http://openconfig.net/yang/vlan\">oc-vlan-types:TPID_0X8100</tpid>\n"
-         "</config>\n"
-         "<hold-time>\n"
-            "<config>\n"
-               "<up>0</up>\n"
-               "<down>0</down>\n"
-            "</config>\n"
-         "</hold-time>\n"
-         "<penalty-based-aied>\n"
-            "<config>\n"
-               "<max-suppress-time>0</max-suppress-time>\n"
-               "<decay-half-life>0</decay-half-life>\n"
-               "<suppress-threshold>0</suppress-threshold>\n"
-               "<reuse-threshold>0</reuse-threshold>\n"
-               "<flap-penalty>0</flap-penalty>\n"
-            "</config>\n"
-         "</penalty-based-aied>\n"
-         "<ethernet xmlns=\"http://openconfig.net/yang/interfaces/ethernet\">\n"
-            "<config>\n"
-               "<enable-flow-control>false</enable-flow-control>\n"
-               "<auto-negotiate>true</auto-negotiate>\n"
-               "<standalone-link-training>false</standalone-link-training>\n"
-            "</config>\n"
-         "</ethernet>\n"
-      "</interface>\n"
-   "</interfaces>\n"
-"</config>");
+	cprintf(cb, "<interfaces xmlns=\"http://openconfig.net/yang/interfaces\">\n"
+   "    <interface>\n"
+   "     <name>lan2</name>\n"
+   "     <config xmlns:ianaift=\"urn:ietf:params:xml:ns:yang:iana-if-type\">\n"
+   "        <name>lan2</name>\n"
+   "        <type>ianaift:ethernetCsmacd</type>\n"
+   "     </config>\n"
+   "      <ethernet xmlns=\"http://openconfig.net/yang/interfaces/ethernet\">\n"
+   "        <switched-vlan xmlns=\"http://openconfig.net/yang/vlan\">\n"
+   "          <config>\n"
+   "            <interface-mode>ACCESS</interface-mode>\n"
+   "            <native-vlan>1</native-vlan>\n"
+   "          </config>\n"
+   "        </switched-vlan>\n"
+   "      </ethernet>\n"
+   "    </interface>\n"
+   "  </interfaces>");
 
-	if (clixon_xml_parse_string(cbuf_get(cb), YB_NONE, NULL, &xtop, NULL) < 0) {
+    /* get top-level yang spec (used by parser for binding) */
+    yspec = clicon_dbspec_yang(h);
+
+	if (clixon_xml_parse_string(cbuf_get(cb), YB_NONE, yspec, &xt, NULL) < 0) {
 		clixon_log(h, LOG_ERR, "[%s]: Error parsing initial configuration", NAME);
 		goto done;
 	}
 
-    retval = 0;
+	/* The parser returns a top-level tree — the datastore expects <config> top */
+    xml_name_set(xt, "config");
+
+	/* Merge the parsed default config into the temp DB (db is e.g. "tmp" or "startup"). 
+       Use OP_MERGE to merge with existing data; use OP_REPLACE/OP_CREATE if you want different semantics. */
+    if (xmldb_put(h, (char*)db,  OP_MERGE, xt, clicon_username_get(h), cbret) < 1) {
+		clixon_log(h, LOG_ERR, "[%s]: xmldb_put error (%s)", NAME, cbuf_get(cbret));
+    	goto done;
+	}
+
+	retval = 0;
 done:
+    if (cbret)
+        cbuf_free(cbret);
+    if (xt != NULL)
+        xml_free(xt);
     return retval;
 }
 
@@ -301,6 +310,7 @@ static clixon_plugin_api api = {
     .ca_name = NAME,
     .ca_init = clixon_plugin_init,
 	.ca_start = start,
+	.ca_reset = reset,
     .ca_trans_begin = trans_begin,
     .ca_trans_commit = trans_commit,
     .ca_statedata = statedata,
