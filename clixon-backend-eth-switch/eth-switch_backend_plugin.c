@@ -65,24 +65,13 @@
 
 static int start(clixon_handle h)
 {
-	int   retval = -1;
-
-	clixon_log(h, LOG_INFO, "[%s]: start run", NAME);
-
-    retval = 0;
-done:
-    return retval;
-}
-
-int reset(clixon_handle h, const char   *db)
-{
 	cxobj *xt = NULL;
 	cbuf  *cb = NULL;
 	cbuf  *cbret = NULL;
 	int   retval = -1;
 	yang_stmt *yspec;
 
-	clixon_log(h, LOG_INFO, "[%s]: reset run", NAME);
+	clixon_log(h, LOG_INFO, "[%s]: start run", NAME);
 
 	if ((cb = cbuf_new()) == NULL) {
 		clixon_log(h, LOG_ERR, "[%s]: cbuf_new cb", NAME);
@@ -94,28 +83,30 @@ int reset(clixon_handle h, const char   *db)
         goto done;
     }
 
-	cprintf(cb, "<interfaces xmlns=\"http://openconfig.net/yang/interfaces\">\n"
-   "    <interface>\n"
-   "     <name>lan2</name>\n"
-   "     <config xmlns:ianaift=\"urn:ietf:params:xml:ns:yang:iana-if-type\">\n"
-   "        <name>lan2</name>\n"
-   "        <type>ianaift:ethernetCsmacd</type>\n"
-   "     </config>\n"
-   "      <ethernet xmlns=\"http://openconfig.net/yang/interfaces/ethernet\">\n"
-   "        <switched-vlan xmlns=\"http://openconfig.net/yang/vlan\">\n"
-   "          <config>\n"
-   "            <interface-mode>ACCESS</interface-mode>\n"
-   "            <native-vlan>1</native-vlan>\n"
-   "          </config>\n"
-   "        </switched-vlan>\n"
-   "      </ethernet>\n"
-   "    </interface>\n"
-   "  </interfaces>");
+	const char *xml =
+	"<interfaces xmlns=\"http://openconfig.net/yang/interfaces\">"
+	"  <interface>"
+	"    <name>lan2</name>"
+	"    <config>"
+	"      <name>lan2</name>"
+	"      <type>ianaift:ethernetCsmacd</type>"
+	"    </config>"
+	"    <ethernet>"
+	"      <switched-vlan>"
+	"        <config>"
+	"          <interface-mode>ACCESS</interface-mode>"
+	"          <native-vlan>1</native-vlan>"
+	"        </config>"
+	"      </switched-vlan>"
+	"    </ethernet>"
+	"  </interface>"
+	"</interfaces>";
+
 
     /* get top-level yang spec (used by parser for binding) */
     yspec = clicon_dbspec_yang(h);
 
-	if (clixon_xml_parse_string(cbuf_get(cb), YB_NONE, yspec, &xt, NULL) < 0) {
+	if (clixon_xml_parse_string(xml, YB_NONE, yspec, &xt, NULL) < 0) {
 		clixon_log(h, LOG_ERR, "[%s]: Error parsing initial configuration", NAME);
 		goto done;
 	}
@@ -125,10 +116,75 @@ int reset(clixon_handle h, const char   *db)
 
 	/* Merge the parsed default config into the temp DB (db is e.g. "tmp" or "startup"). 
        Use OP_MERGE to merge with existing data; use OP_REPLACE/OP_CREATE if you want different semantics. */
-    if (xmldb_put(h, (char*)db,  OP_MERGE, xt, clicon_username_get(h), cbret) < 1) {
+    if (xmldb_put(h, "running",  OP_MERGE, xt, clicon_username_get(h), cbret) < 1) {
 		clixon_log(h, LOG_ERR, "[%s]: xmldb_put error (%s)", NAME, cbuf_get(cbret));
     	goto done;
 	}
+
+	retval = 0;
+done:
+    if (cbret)
+        cbuf_free(cbret);
+    if (xt != NULL)
+        xml_free(xt);
+    return retval;
+}
+
+int reset(clixon_handle h, const char   *db)
+{
+	cxobj *xt = NULL;
+	cbuf  *cb = NULL;
+	cbuf  *cbret = NULL;
+	int   retval = -1;
+	yang_stmt *yspec;
+
+ 	clixon_log(h, LOG_INFO, "[%s]: reset run", NAME);
+
+// 	if ((cb = cbuf_new()) == NULL) {
+// 		clixon_log(h, LOG_ERR, "[%s]: cbuf_new cb", NAME);
+// 		goto done;
+// 	}
+
+// 	if ((cbret = cbuf_new()) == NULL){
+//         clixon_log(h, LOG_ERR, "[%s]: cbuf_new cbret", NAME);
+//         goto done;
+//     }
+
+// 	cprintf(cb, "<interfaces xmlns=\"http://openconfig.net/yang/interfaces\">"
+//    "    <interface>"
+//    "     <name>lan2</name>"
+//    "     <config xmlns:ianaift=\"urn:ietf:params:xml:ns:yang:iana-if-type\">"
+//    "        <name>lan2</name>"
+//    "        <type>ianaift:ethernetCsmacd</type>"
+//    "     </config>"
+//    "      <ethernet xmlns=\"http://openconfig.net/yang/interfaces/ethernet\">"
+//    "        <switched-vlan xmlns=\"http://openconfig.net/yang/vlan\">"
+//    "          <config>"
+//    "            <interface-mode>ACCESS</interface-mode>"
+//    "            <native-vlan>1</native-vlan>"
+//    "          </config>"
+//    "        </switched-vlan>"
+//    "      </ethernet>"
+//    "    </interface>"
+//    "  </interfaces>");
+
+//     /* get top-level yang spec (used by parser for binding) */
+//     yspec = clicon_dbspec_yang(h);
+
+// 	if (clixon_xml_parse_string(cbuf_get(cb), YB_NONE, yspec, &xt, NULL) < 0) {
+// 		clixon_log(h, LOG_ERR, "[%s]: Error parsing initial configuration", NAME);
+// 		goto done;
+// 	}
+
+// 	/* The parser returns a top-level tree — the datastore expects <config> top */
+//     xml_name_set(xt, "config");
+
+// 	/* Merge the parsed default config into the temp DB (db is e.g. "tmp" or "startup"). 
+//        Use OP_MERGE to merge with existing data; use OP_REPLACE/OP_CREATE if you want different semantics. */
+//     if (xmldb_put(h, (char*)db,  OP_MERGE, xt, clicon_username_get(h), cbret) < 1) {
+// 		clixon_log(h, LOG_ERR, "[%s]: xmldb_put error (%s)", NAME, cbuf_get(cbret));
+//     	goto done;
+// 	}
 
 	retval = 0;
 done:
