@@ -128,7 +128,7 @@ static int start(clixon_handle h)
 			
 			const char *ifname = json_string_value(jn);
 
-			clixon_log(h, LOG_INFO, "[%s]: found ethernet interface %s", NAME, ifname);
+			clixon_log(h, LOG_INFO, "[%s]: adding ethernet interface %s", NAME, ifname);
 			
 			cprintf(cb, "  <interface>");
 			cprintf(cb, "    <name>%s</name>", ifname);
@@ -164,15 +164,23 @@ static int start(clixon_handle h)
     	goto done;
 	}
 
+	if(candidate_commit(h, NULL, "candidate", 0, 0, cbret) < 0) {
+		clixon_log(h, LOG_ERR, "[%s]: candidate_commit error (%s)", NAME, cbuf_get(cbret));
+    	goto done;
+	}
+
 	retval = 0;
 done:
-    if (cbret)
-        cbuf_free(cbret);
-	if (cb)
-        cbuf_free(cb);
-    if (xt != NULL)
-        xml_free(xt);
-    return retval;
+	if (cbret) {
+		cbuf_free(cbret);
+	}
+	if (cb) {
+		cbuf_free(cb);
+	}
+	if (xt != NULL) {
+		xml_free(xt);
+	}
+	return retval;
 }
 
 int reset(clixon_handle h, const char   *db)
@@ -211,7 +219,7 @@ int trans_commit(clixon_handle h, transaction_data td)
         goto done;
     }
 
-    xml_print(stdout, xmlconfig);
+    //xml_print(stdout, xmlconfig);
 
     retval = 0;
  done:
@@ -226,16 +234,44 @@ static int system_only(clixon_handle h, cvec *nsc, char *xpath, cxobj *xtop)
 }
 
 /* Verify obj is a string and then lowercase print it in fmt */
-void cprint_xml_string(cbuf *cb, const char *fmt, json_t *obj, const char *key)
+void cprint_from_json(cbuf *cb, const char *fmt, json_t *obj, const char *key)
 {
 	json_t *val;
 	char *str;
 
-	val = json_object_get(obj, key);
-	if (!val || !json_is_string(val))
+	/* Support dotted paths like "stats64.rx.packets" */
+	json_t *cur = obj;
+	char *path = strdup(key);
+	char *tok, *saveptr;
+
+	if (!path) {
+		val = NULL;
+	} else {
+		tok = strtok_r(path, ".", &saveptr);
+		while (tok && cur) {
+			if (!json_is_object(cur)) {
+				cur = NULL;
+				break;
+			}
+			cur = json_object_get(cur, tok);
+			tok = strtok_r(NULL, ".", &saveptr);
+		}
+		free(path);
+		val = cur;
+	}
+	if (!val || !(json_is_string(val) || json_is_integer(val)))
 		return;
 
-	str = strdup(json_string_value(val));
+	char tmp[64];
+	if (json_is_string(val)) {
+		str = strdup(json_string_value(val));
+	} else if (json_is_integer(val)) {
+		json_int_t iv = json_integer_value(val);
+		snprintf(tmp, sizeof(tmp), "%" PRId64, (int64_t)iv);
+		str = strdup(tmp);
+	} else {
+		str = NULL;
+	}
 	if (!str)
 		return;
 
@@ -247,7 +283,7 @@ void cprint_xml_string(cbuf *cb, const char *fmt, json_t *obj, const char *key)
 
 void cprint_ifdata(cbuf *cb, char *ifname)
 {
-	json_t *root = NULL, *obj;
+	json_t *root = NULL, *json_obj;
 	json_error_t error;
 	FILE *fp = NULL;
 	char cmd[128];
@@ -258,7 +294,7 @@ void cprint_ifdata(cbuf *cb, char *ifname)
 	if (!buf)
 		goto err;
 
-	snprintf(cmd, sizeof(cmd), "ip -j -p link show %s", ifname);
+	snprintf(cmd, sizeof(cmd), "ip -j -p -d -s link show %s", ifname);
 	fp = popen(cmd, "r");
 	if (!fp)
 		goto err;
@@ -273,22 +309,34 @@ void cprint_ifdata(cbuf *cb, char *ifname)
 	if (!json_is_array(root)) {
 		if (!json_is_object(root))
 			goto err;
-		obj = root;
+		json_obj = root;
 	} else
-		obj = json_array_get(root, 0);
+		json_obj = json_array_get(root, 0);
 
 	cprintf(cb,
 		"<interface>\n"
-        "<config xmlns:ianaift=\"urn:ietf:params:xml:ns:yang:iana-if-type\">\n"
-		"  <name>%s</name>\n"
-		"  <type>ex:eth</type>\n", ifname);
-    cprintf(cb, "</config>");
-	cprintf(cb,"<ethernet xmlns=\"http://openconfig.net/yang/interfaces/ethernet\">\n"
-            "<state>>\n");
-    cprint_xml_string(cb, "  <hw-mac-address>%s</hw-mac-address>\n", obj, "address");
-    cprintf(cb,"</state>>\n"
-         "</ethernet>>\n");
-	cprintf(cb, "</interface>");
+		" <name>%s</name>\n", ifname);
+	cprintf(cb,
+		"  <state>\n");
+    cprint_from_json(cb, 
+		"   <oper-status>%s</oper-status>\n", json_obj, "operstate");
+	cprintf(cb,
+		"    <counters>\n");
+	cprint_from_json(cb, "<in-octets>%s</in-octets>\n", json_obj, "stats64.rx.bytes");
+    cprint_from_json(cb, "<in-pkts>%s</in-pkts>\n", json_obj, "stats64.rx.packets");
+	cprint_from_json(cb, "<out-octets>%s</out-octets>\n", json_obj, "stats64.tx.bytes");
+    cprint_from_json(cb, "<out-pkts>%s</out-pkts>\n", json_obj, "stats64.tx.packets");
+	cprintf(cb,
+		"    </counters>\n"
+		"   </state>>\n"
+		"  <ethernet xmlns=\"http://openconfig.net/yang/interfaces/ethernet\">\n"
+		"    <state>>\n");
+    cprint_from_json(cb, 
+		"     <hw-mac-address>%s</hw-mac-address>\n", json_obj, "address");
+    cprintf(cb,
+		"    </state>>\n"
+        "  </ethernet>>\n"
+	    "</interface>");
 err:
 	if (root)
 		json_decref(root);
@@ -330,7 +378,7 @@ static int statedata(clixon_handle h, cvec *nsc, char *xpath, cxobj *xtop)
 	}
 	retval = 0;
 
-    xml_print(stdout, xtop);
+    //xml_print(stdout, xtop);
 done:
 	if (nsc1)
 		xml_nsctx_free(nsc1);
