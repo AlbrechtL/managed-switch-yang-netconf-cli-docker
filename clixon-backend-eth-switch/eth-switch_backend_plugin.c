@@ -71,6 +71,13 @@ static int start(clixon_handle h)
 	int   retval = -1;
 	yang_stmt *yspec;
 
+	json_t *root = NULL;
+	json_error_t error;
+	FILE *fp = NULL;
+	char cmd[128];
+	size_t len;
+	char *buf;
+
 	clixon_log(h, LOG_INFO, "[%s]: start run", NAME);
 
 	if ((cb = cbuf_new()) == NULL) {
@@ -83,30 +90,66 @@ static int start(clixon_handle h)
         goto done;
     }
 
-	const char *xml =
-	"<interfaces xmlns=\"http://openconfig.net/yang/interfaces\">"
-	"  <interface>"
-	"    <name>lan2</name>"
-	"    <config>"
-	"      <name>lan2</name>"
-	"      <type>ianaift:ethernetCsmacd</type>"
-	"    </config>"
-	"    <ethernet>"
-	"      <switched-vlan>"
-	"        <config>"
-	"          <interface-mode>ACCESS</interface-mode>"
-	"          <native-vlan>1</native-vlan>"
-	"        </config>"
-	"      </switched-vlan>"
-	"    </ethernet>"
-	"  </interface>"
-	"</interfaces>";
+	/* Read existing Ethernet interfaces */
+	buf = malloc(BUFSIZ);
+	if (!buf)
+		goto done;
 
+	snprintf(cmd, sizeof(cmd), "ip -j -p link show");
+	fp = popen(cmd, "r");
+	if (!fp)
+		goto done;
+
+	len = fread(buf, 1, 4096, fp);
+	if (len == 0 || ferror(fp))
+		goto done;
+
+	root = json_loadb(buf, len, 0, &error);
+	if (!root)
+		goto done;
+
+	/* Create XML */
+	cprintf(cb, "<interfaces xmlns=\"http://openconfig.net/yang/interfaces\">");
+
+	/* Loop over all interfaces and extract ethernet interface names */
+	if (json_is_array(root)) {
+		size_t arrlen = json_array_size(root);
+		for (size_t i = 0; i < arrlen; i++) {
+			json_t *entry = json_array_get(root, i);
+			if (!json_is_object(entry))
+				continue;
+			json_t *lt = json_object_get(entry, "link_type");
+			/* Consider only link_type == "ether" as Ethernet interfaces */
+			if (!lt || !json_is_string(lt) || strcmp(json_string_value(lt), "ether") != 0)
+				continue;
+			json_t *jn = json_object_get(entry, "ifname");
+			if (!jn || !json_is_string(jn))
+				continue;
+			
+			const char *ifname = json_string_value(jn);
+
+			clixon_log(h, LOG_INFO, "[%s]: found ethernet interface %s", NAME, ifname);
+			
+			cprintf(cb, "  <interface>");
+			cprintf(cb, "    <name>%s</name>", ifname);
+			cprintf(cb, "    <config>");
+			cprintf(cb, "      <name>%s</name>", ifname);
+			cprintf(cb, "      <type xmlns:ianaift=\"urn:ietf:params:xml:ns:yang:iana-if-type\">ianaift:ethernetCsmacd</type>");
+			cprintf(cb, "    </config>");
+			cprintf(cb, "  </interface>");
+			
+		}
+	} else {
+		clixon_log(h, LOG_ERR, "[%s]: Expect a JSON array here", NAME);
+		goto done;
+	}
+
+	cprintf(cb, "</interfaces>");
 
     /* get top-level yang spec (used by parser for binding) */
     yspec = clicon_dbspec_yang(h);
 
-	if (clixon_xml_parse_string(xml, YB_NONE, yspec, &xt, NULL) < 0) {
+	if (clixon_xml_parse_string(cbuf_get(cb), YB_MODULE, yspec, &xt, NULL) < 0) {
 		clixon_log(h, LOG_ERR, "[%s]: Error parsing initial configuration", NAME);
 		goto done;
 	}
@@ -116,7 +159,7 @@ static int start(clixon_handle h)
 
 	/* Merge the parsed default config into the temp DB (db is e.g. "tmp" or "startup"). 
        Use OP_MERGE to merge with existing data; use OP_REPLACE/OP_CREATE if you want different semantics. */
-    if (xmldb_put(h, "running",  OP_MERGE, xt, clicon_username_get(h), cbret) < 1) {
+    if (xmldb_put(h, "candidate",  OP_MERGE, xt, clicon_username_get(h), cbret) < 1) {
 		clixon_log(h, LOG_ERR, "[%s]: xmldb_put error (%s)", NAME, cbuf_get(cbret));
     	goto done;
 	}
@@ -125,6 +168,8 @@ static int start(clixon_handle h)
 done:
     if (cbret)
         cbuf_free(cbret);
+	if (cb)
+        cbuf_free(cb);
     if (xt != NULL)
         xml_free(xt);
     return retval;
@@ -132,77 +177,16 @@ done:
 
 int reset(clixon_handle h, const char   *db)
 {
-	cxobj *xt = NULL;
-	cbuf  *cb = NULL;
-	cbuf  *cbret = NULL;
-	int   retval = -1;
-	yang_stmt *yspec;
-
  	clixon_log(h, LOG_INFO, "[%s]: reset run", NAME);
 
-// 	if ((cb = cbuf_new()) == NULL) {
-// 		clixon_log(h, LOG_ERR, "[%s]: cbuf_new cb", NAME);
-// 		goto done;
-// 	}
-
-// 	if ((cbret = cbuf_new()) == NULL){
-//         clixon_log(h, LOG_ERR, "[%s]: cbuf_new cbret", NAME);
-//         goto done;
-//     }
-
-// 	cprintf(cb, "<interfaces xmlns=\"http://openconfig.net/yang/interfaces\">"
-//    "    <interface>"
-//    "     <name>lan2</name>"
-//    "     <config xmlns:ianaift=\"urn:ietf:params:xml:ns:yang:iana-if-type\">"
-//    "        <name>lan2</name>"
-//    "        <type>ianaift:ethernetCsmacd</type>"
-//    "     </config>"
-//    "      <ethernet xmlns=\"http://openconfig.net/yang/interfaces/ethernet\">"
-//    "        <switched-vlan xmlns=\"http://openconfig.net/yang/vlan\">"
-//    "          <config>"
-//    "            <interface-mode>ACCESS</interface-mode>"
-//    "            <native-vlan>1</native-vlan>"
-//    "          </config>"
-//    "        </switched-vlan>"
-//    "      </ethernet>"
-//    "    </interface>"
-//    "  </interfaces>");
-
-//     /* get top-level yang spec (used by parser for binding) */
-//     yspec = clicon_dbspec_yang(h);
-
-// 	if (clixon_xml_parse_string(cbuf_get(cb), YB_NONE, yspec, &xt, NULL) < 0) {
-// 		clixon_log(h, LOG_ERR, "[%s]: Error parsing initial configuration", NAME);
-// 		goto done;
-// 	}
-
-// 	/* The parser returns a top-level tree — the datastore expects <config> top */
-//     xml_name_set(xt, "config");
-
-// 	/* Merge the parsed default config into the temp DB (db is e.g. "tmp" or "startup"). 
-//        Use OP_MERGE to merge with existing data; use OP_REPLACE/OP_CREATE if you want different semantics. */
-//     if (xmldb_put(h, (char*)db,  OP_MERGE, xt, clicon_username_get(h), cbret) < 1) {
-// 		clixon_log(h, LOG_ERR, "[%s]: xmldb_put error (%s)", NAME, cbuf_get(cbret));
-//     	goto done;
-// 	}
-
-	retval = 0;
-done:
-    if (cbret)
-        cbuf_free(cbret);
-    if (xt != NULL)
-        xml_free(xt);
-    return retval;
+    return 0;
 }
 
 static int trans_begin(clixon_handle h, transaction_data td)
 {
-    int   retval = -1;
     clixon_log(h, LOG_INFO, "[%s]: trans_begin run", NAME);
 
-    retval = 0;
-done:
-    return retval;
+    return 0;
 }
 
 int trans_commit(clixon_handle h, transaction_data td)
@@ -236,11 +220,9 @@ int trans_commit(clixon_handle h, transaction_data td)
 
 static int system_only(clixon_handle h, cvec *nsc, char *xpath, cxobj *xtop)
 {
-    int   retval = -1;
     clixon_log(h, LOG_INFO, "[%s]: system_only run", NAME);
 
-done:
-    return retval;
+    return 0;
 }
 
 /* Verify obj is a string and then lowercase print it in fmt */
@@ -324,6 +306,8 @@ static int statedata(clixon_handle h, cvec *nsc, char *xpath, cxobj *xtop)
 	cxobj     *xt = NULL;
 	cvec      *nsc1 = NULL;
 	int        retval = -1;
+
+	clixon_log(h, LOG_INFO, "[%s]: statedata run", NAME);
 
 	if ((cb = cbuf_new()) == NULL) {
         clixon_log(h, LOG_ERR, "[%s]: cbuf_new faild", NAME);
