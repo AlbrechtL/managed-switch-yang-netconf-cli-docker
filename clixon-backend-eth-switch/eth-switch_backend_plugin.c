@@ -197,32 +197,55 @@ static int trans_begin(clixon_handle h, transaction_data td)
     return 0;
 }
 
+char* get_interface_name_from_parent(cxobj *xml_node)
+{
+	cxobj *parent = xml_node;
+
+	// go back in XML tree to interface node
+	while(strcmp("interface", xml_name(parent)) != 0) {
+		parent = xml_parent(parent);
+	}
+
+	return xml_find_body(parent, "name");
+}
+
 int trans_commit(clixon_handle h, transaction_data td)
 {
     int   retval = -1;
-    cxobj *xmlconfig;
-    cvec *nsc;
+    cxobj *xmlconfig_target, *xmlconfig_src;
+	cxobj **vec = NULL;
+    int     i;
+    size_t  len;
     
     clixon_log(h, LOG_INFO, "[%s]: trans_commit run", NAME);
 
-    nsc = clicon_nsctx_global_get(h);
-    if (nsc == NULL) {
-        /* crash protection */
-        clixon_log(h, LOG_ERR, "[%s]: bad global namespace context", NAME);
-        goto done;
-    }
-
-    xmlconfig = transaction_target(td);
-    if (xmlconfig == NULL) {
-        /* crash protection */
-        clixon_log(h, LOG_ERR, "[%s]: bad target DB pointer", NAME);
-        goto done;
-    }
+    xmlconfig_target = transaction_target(td); /* wanted XML tree */
+	xmlconfig_src = transaction_src(td); /* existing XML tree */
 
     //xml_print(stdout, xmlconfig);
 
+	/* New entries*/
+	if (xpath_vec_flag(xmlconfig_target, NULL, "//interface/ethernet/switched-vlan/config/access-vlan", XML_FLAG_ADD | XML_FLAG_CHANGE, &vec, &len) < 0)
+        goto done;
+	for (i=0; i<len; i++) {
+		char* value = xml_value(xml_body_get(vec[i]));
+		char* interface_name = get_interface_name_from_parent(vec[i]);
+		clixon_log(h, LOG_INFO, "[%s]: Add VLAN ID \"%s\" to interface \"%s\"", NAME, value, interface_name);
+	}
+
+	/* Removed entries */
+	if (xpath_vec_flag(xmlconfig_src, NULL, "//interface/ethernet/switched-vlan/config/access-vlan", XML_FLAG_DEL, &vec, &len) < 0)
+        goto done;
+	for (i=0; i<len; i++) {
+		char* value = xml_value(xml_body_get(vec[i]));
+		char* interface_name = get_interface_name_from_parent(vec[i]);
+		clixon_log(h, LOG_INFO, "[%s]: Remove VLAN ID \"%s\" from interface \"%s\"", NAME, value, interface_name);
+	}
+
     retval = 0;
  done:
+	if(vec)
+		free(vec);
     return retval;
 }
 
