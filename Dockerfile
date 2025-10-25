@@ -1,7 +1,7 @@
 ########################################################################################################################
 # Build stage for cligen, clixon and clixon-backend-helper
 ########################################################################################################################
-FROM python:alpine AS clixon_build
+FROM alpine:latest AS clixon_build
 
 # For clixon and cligen
 RUN apk update \
@@ -54,7 +54,7 @@ RUN cd /clixon/clixon-backend-eth-switch \
 ########################################################################################################################
 # clixon Docker image
 ########################################################################################################################
-FROM python:alpine
+FROM alpine:latest
 
 # For clixon and cligen
 RUN apk update \
@@ -71,13 +71,11 @@ RUN apk update \
         nginx \
         libsmi \
         jansson \
+        ttyd \
     && adduser -D -H -G www-data www-data \
     && adduser -D -H clicon \
     && sed -i 's/^worker_processes.*/worker_processes 1;daemon off;/' /etc/nginx/nginx.conf \
     && sed -i '/^#PermitEmptyPasswords no/c\PermitEmptyPasswords yes' /etc/ssh/sshd_config 
-
-# Configure webssh
-RUN pip install webssh
 
 # Copy clixon, cligen and clixon backend helper from build stage
 COPY --from=clixon_build /clixon/build/ /

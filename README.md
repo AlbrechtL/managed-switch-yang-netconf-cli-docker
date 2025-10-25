@@ -62,53 +62,78 @@ $ curl -X GET http://<host ip>:<host port>/rest/restconf/data/<command>
 e.g. getting port info
 
 ```bash
-$ curl -X GET http://localhost:8888/rest/restconf/data/ietf-interfaces:interfaces
+$ curl -X GET http://localhost:8888/rest/restconf/data/openconfig-interfaces:interfaces
 {
-  "ietf-interfaces:interfaces": {
-    "interface": [
-      {
-        "name": "eth0",
-        "type": "iana-if-type:ethernetCsmacd",
-        "enabled": true,
-        "oper-status": "up",
-        "phys-address": "82:09:89:a4:02:6a",
-        "statistics": {
-          "discontinuity-time": "2025-09-15T19:51:07+00:00",
-          "in-octets": "2704",
-          "in-unicast-pkts": "2704",
-          "in-multicast-pkts": "0",
-          "in-discards": 0,
-          "in-errors": 0,
-          "out-octets": "308",
-          "out-unicast-pkts": "308",
-          "out-discards": 0,
-          "out-errors": 0
-        },
-        [...]
-      },
-      {
-        "name": "lo",
-        "type": "iana-if-type:softwareLoopback",
-        "enabled": true,
-        "oper-status": "up",
-        "phys-address": "00:00:00:00:00:00",
-        "statistics": {
-          "discontinuity-time": "2025-09-15T19:51:07+00:00",
-          "in-octets": "468",
-          "in-unicast-pkts": "468",
-          "in-multicast-pkts": "0",
-          "in-discards": 0,
-          "in-errors": 0,
-          "out-octets": "468",
-          "out-unicast-pkts": "468",
-          "out-discards": 0,
-          "out-errors": 0
-        },
+   "openconfig-interfaces:interfaces": {
+      "interface": [
+         {
+            "name": "br0",
+            "config": {
+               "name": "br0",
+               "type": "iana-if-type:ethernetCsmacd"
+            },
+            "state": {
+               "loopback-mode": "NONE",
+               "enabled": true,
+               "oper-status": "up",
+               "counters": {
+                  "in-octets": "6715",
+                  "in-pkts": "107",
+                  "out-octets": "946",
+                  "out-pkts": "11"
+               },
+               "openconfig-vlan:tpid": "TPID_0X8100"
+            },
+            "hold-time": {
+               "state": {
+                  "up": 0,
+                  "down": 0
+               }
+            },
+            "penalty-based-aied": {
+               "state": {
+                  "max-suppress-time": 0,
+                  "decay-half-life": 0,
+                  "suppress-threshold": 0,
+                  "reuse-threshold": 0,
+                  "flap-penalty": 0
+               }
+            },
+            "openconfig-if-ethernet:ethernet": {
+               "state": {
+                  "enable-flow-control": false,
+                  "auto-negotiate": true,
+                  "standalone-link-training": false,
+                  "hw-mac-address": "6e:09:6e:ba:05:15"
+               }
+            }
+         },
         [...]
     ]
   }
 }
 ```
+
+e.g. getting port statistics from port lan1
+
+```bash
+$ curl -X GET http://localhost:8888/rest/restconf/data/openconfig-interfaces:interfaces/interface=lan1/state
+{
+   "openconfig-interfaces:state": {
+      "loopback-mode": "NONE",
+      "enabled": true,
+      "oper-status": "up",
+      "counters": {
+         "in-octets": "79246088",
+         "in-pkts": "534804",
+         "out-octets": "6568874",
+         "out-pkts": "37839"
+      },
+      "openconfig-vlan:tpid": "TPID_0X8100"
+   }
+}
+```
+
 ### NETCONF
 
 ```bash

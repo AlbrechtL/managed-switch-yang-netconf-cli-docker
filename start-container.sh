@@ -79,7 +79,7 @@ fi
 exec multirun \
   "clixon_backend -F -D default -s startup" \
   "/usr/sbin/sshd -D" \
-  "wssh --address='127.0.0.1' --port=2000" \
+  "ttyd --writable --port 2000 --debug 1 sh -c 'cat /etc/motd && clixon_cli'" \
   "nginx"
 
 
