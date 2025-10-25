@@ -10,7 +10,9 @@
                 "-D",
                 "default",
                 "-f",
-                "eth-switch.xml"
+                "eth-switch.xml",
+                "-s",
+                "startup"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
