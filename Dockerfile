@@ -16,9 +16,8 @@ RUN apk update \
         nghttp2 \
         net-snmp \
         net-snmp-dev \
-        shadow \
-        meson \
-        swig \
+        jansson-dev \
+        jansson \
     \
     && adduser -D -H -G www-data www-data \
     && mkdir -p /clixon/build
@@ -41,13 +40,15 @@ RUN git clone https://github.com/clicon/clixon.git /clixon/clixon \
     && make DESTDIR=/clixon/build install \
     && make DESTDIR=/clixon/build install-include 
 
-# Build clixon backend helper
-COPY clixon-backend-plugin /clixon/clixon-backend-helper
-WORKDIR /clixon/clixon-backend-helper
-RUN cd /clixon/clixon-backend-helper \
-    && meson setup build \
-    && meson compile -C build \
-    && meson install -C build --destdir /clixon/build 
+# Build clixon ethernet switch backend plugin
+COPY clixon-backend-eth-switch /clixon/clixon-backend-eth-switch
+RUN cd /clixon/clixon-backend-eth-switch \
+    && make \
+    && make install \
+    && make DESTDIR=/clixon/build install \
+    && cp -r /clixon/clixon-backend-eth-switch/yang/misc/ /clixon/build/usr/local/share/clixon/ \
+    && cp -r /clixon/clixon-backend-eth-switch/yang/openconfig/ /clixon/build/usr/local/share/openconfig/
+
 
 
 ########################################################################################################################
@@ -69,6 +70,7 @@ RUN apk update \
         iproute2 \
         nginx \
         libsmi \
+        jansson \
     && adduser -D -H -G www-data www-data \
     && adduser -D -H clicon \
     && sed -i 's/^worker_processes.*/worker_processes 1;daemon off;/' /etc/nginx/nginx.conf \
@@ -111,7 +113,7 @@ COPY *.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/*.sh
 
 # Create symlink so you can run clixon without -f arg
-RUN ln -s /usr/local/etc/clixon/ietf-ip.xml /etc/clixon.xml 
+RUN ln -s /usr/local/etc/clixon/eth-switch.xml /etc/clixon.xml 
 
 # Expose https port for restconf
 EXPOSE 22/tcp

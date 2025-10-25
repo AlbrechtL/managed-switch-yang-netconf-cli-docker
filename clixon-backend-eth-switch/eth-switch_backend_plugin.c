@@ -3,8 +3,7 @@
   ***** BEGIN LICENSE BLOCK *****
  
   Copyright (C) 2021-2022 Olof Hagsand and Rubicon Communications, LLC(Netgate)
-
-  This file is part of CLIXON.
+  Copyright (C) 2025 Albrecht Lohofener <albrechtloh@gmx.de>
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -59,7 +58,7 @@
 
 /* JSON handling */
 #include <jansson.h>
-
+#define JSON_BUF_SIZE BUFSIZ * 4
 
 #define NAME "eth-switch-backend"
 
@@ -91,16 +90,16 @@ static int start(clixon_handle h)
     }
 
 	/* Read existing Ethernet interfaces */
-	buf = malloc(BUFSIZ);
+	buf = malloc(JSON_BUF_SIZE);
 	if (!buf)
 		goto done;
 
-	snprintf(cmd, sizeof(cmd), "ip -j -p link show");
+	snprintf(cmd, sizeof(cmd), "ip -j link show");
 	fp = popen(cmd, "r");
 	if (!fp)
 		goto done;
 
-	len = fread(buf, 1, BUFSIZ, fp);
+	len = fread(buf, 1, JSON_BUF_SIZE, fp);
 	if (len == 0 || ferror(fp))
 		goto done;
 
@@ -220,8 +219,8 @@ int systemf(const char *fmt, ...) {
     va_end(args);
 
 	char cmd2[2048];
-	snprintf(cmd2, 2048, "sudo %s", cmd);
-	//snprintf(cmd2, 2048, "%s", cmd);
+	//snprintf(cmd2, 2048, "sudo %s", cmd);
+	snprintf(cmd2, 2048, "%s", cmd);
 
 	ret = system(cmd2);
 	if (ret != 0) {
@@ -355,7 +354,7 @@ void cprint_from_json(cbuf *cb, const char *fmt, json_t *obj, const char *key)
 	free(str);
 }
 
-void cprint_ifdata(cbuf *cb, char *ifname)
+void cprint_ifdata(clixon_handle h, cbuf *cb, char *ifname)
 {
 	json_t *root = NULL, *json_obj;
 	json_error_t error;
@@ -364,22 +363,24 @@ void cprint_ifdata(cbuf *cb, char *ifname)
 	size_t len;
 	char *buf;
 
-	buf = malloc(BUFSIZ);
+	buf = malloc(JSON_BUF_SIZE);
 	if (!buf)
 		goto err;
 
-	snprintf(cmd, sizeof(cmd), "ip -j -p -d -s link show %s", ifname);
+	snprintf(cmd, sizeof(cmd), "ip -j -d -s link show %s", ifname);
 	fp = popen(cmd, "r");
 	if (!fp)
 		goto err;
 
-	len = fread(buf, 1, 4096, fp);
+	len = fread(buf, 1, JSON_BUF_SIZE, fp);
 	if (len == 0 || ferror(fp))
 		goto err;
 
 	root = json_loadb(buf, len, 0, &error);
-	if (!root)
+		if (!root) {
+		clixon_log(h, LOG_ERR, "[%s]: Error parsing ip link show json \"%s\"", NAME, error.text);
 		goto err;
+	}
 	if (!json_is_array(root)) {
 		if (!json_is_object(root))
 			goto err;
@@ -445,7 +446,7 @@ static int statedata(clixon_handle h, cvec *nsc, char *xpath, cxobj *xtop)
 	if (xlen) {
 		cprintf(cb, "<interfaces xmlns=\"http://openconfig.net/yang/interfaces\">");
 		for (size_t i = 0; i < xlen; i++)
-			cprint_ifdata(cb, xml_body(xvec[i]));
+			cprint_ifdata(h, cb, xml_body(xvec[i]));
 		cprintf(cb, "</interfaces>");
 		if (clixon_xml_parse_string(cbuf_get(cb), YB_NONE, NULL, &xtop, NULL) < 0)
 			goto done;

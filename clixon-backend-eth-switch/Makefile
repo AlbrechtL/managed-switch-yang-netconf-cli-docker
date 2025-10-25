@@ -2,8 +2,8 @@
 # ***** BEGIN LICENSE BLOCK *****
 # 
 # Copyright (C) 2020-2023 Olof Hagsand and Rubicon Communications, LLC
+# Copyright (C) 2025 Albrecht Lohofener <albrechtloh@gmx.de>
 #
-# This file is part of CLIXON
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -50,6 +50,12 @@ INSTALLFLAGS  	= -s
 INCLUDES 	=  
 CPPFLAGS  	= -DHAVE_CONFIG_H  -fPIC
 
+# Here is where example yang appears
+YANG_INSTALLDIR  = $(datarootdir)/clixon/$(APPNAME)
+
+# Local yang files to install
+YANGSPECS	 = yang/clixon-eth-switch@2025-09-23.yang
+
 # Example backend plugin
 # There may also be restconf/cli/netconf plugins which are not covered here, see
 # eg clixon main example
@@ -67,7 +73,7 @@ PLUGIN_OBJ   = $(PLUGIN_SRC:%.c=%.o)
 all: $(PLUGIN)
 
 $(PLUGIN): $(PLUGIN_OBJ)
-	$(CC) -Wall -shared $(LDFLAGS) -o $@ -lc $< -lclixon -lclixon_backend
+	$(CC) -Wall -shared $(LDFLAGS) -o $@ -lc $< -lclixon -lclixon_backend -ljansson
 
 CLISPECS = $(APPNAME)_cli.cli
 
@@ -90,12 +96,16 @@ install: $(CLISPECS) $(APPNAME).xml autocli.xml $(PLUGIN)
 	install -d -m 0755 $(DESTDIR)$(localstatedir)/$(APPNAME)
 	install -m 0644 startup_db $(DESTDIR)$(localstatedir)/$(APPNAME)/
 	install -m 0644 $(INSTALLFLAGS) $(PLUGIN) $(DESTDIR)$(libdir)/$(APPNAME)/backend
+	install -d -m 0755 $(DESTDIR)$(YANG_INSTALLDIR)
+	install -m 0644 $(YANGSPECS) $(DESTDIR)$(YANG_INSTALLDIR)
 
 uninstall: 
 	rm -f $(DESTDIR)$(sysconfdir)/clixon/$(APPNAME).xml
 	rm -rf $(DESTDIR)$(sysconfdir)/clixon/$(APPNAME)
 	rm -rf $(DESTDIR)$(libdir)/$(APPNAME)
 	rm -rf $(DESTDIR)$(localstatedir)/$(APPNAME)
+	for i in $(YANGSPEC) ; \
+	do rm $(DESTDIR)$(YANG_INSTALLDIR)/$$i; done
 
 depend:
 	$(CC) $(DEPENDFLAGS) $(INCLUDES) $(CFLAGS) -MM $(SRC) > .depend

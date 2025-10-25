@@ -10,7 +10,7 @@
                 "-D",
                 "default",
                 "-f",
-                "eth-switch.xml",
+                "eth-switch-dev.xml",
                 "-s",
                 "startup"
             ],
