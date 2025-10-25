@@ -212,13 +212,23 @@ char* get_interface_name_from_parent(cxobj *xml_node)
 }
 
 int systemf(const char *fmt, ...) {
+	int ret = 0;
     char cmd[1024];
     va_list args;
     va_start(args, fmt);
     vsnprintf(cmd, sizeof(cmd), fmt, args);
     va_end(args);
 
-    return system(cmd);
+	char cmd2[2048];
+	snprintf(cmd2, 2048, "sudo %s", cmd);
+	//snprintf(cmd2, 2048, "%s", cmd);
+
+	ret = system(cmd2);
+	if (ret != 0) {
+		clixon_err(OE_FATAL, 0, "Failed to execute system command: \"%s\"", cmd);
+	}
+	
+    return ret;
 }
 
 int trans_commit(clixon_handle h, transaction_data td)
@@ -237,14 +247,15 @@ int trans_commit(clixon_handle h, transaction_data td)
     //xml_print(stdout, xmlconfig);
 
 	/* Removed entries */
-	if (xpath_vec_flag(xmlconfig_src, NULL, "//interface/ethernet/switched-vlan/config/access-vlan", XML_FLAG_DEL, &vec, &len) < 0)
+	if (xpath_vec_flag(xmlconfig_src, NULL, "//interface/ethernet/switched-vlan/config/access-vlan", XML_FLAG_DEL| XML_FLAG_CHANGE, &vec, &len) < 0)
         goto done;
 	for (i=0; i<len; i++) {
 		char* value = xml_value(xml_body_get(vec[i]));
 		char* interface_name = get_interface_name_from_parent(vec[i]);
 		clixon_log(h, LOG_INFO, "[%s]: Remove access VLAN ID \"%s\" from interface \"%s\"", NAME, value, interface_name);
 
-		systemf("bridge vlan del dev %s vid %s", interface_name, value);
+		if(systemf("bridge vlan del dev %s vid %s", interface_name, value) != 0)
+			goto done;
 	}
 
 	if (xpath_vec_flag(xmlconfig_src, NULL, "//interface/ethernet/switched-vlan/config/trunk-vlans", XML_FLAG_DEL, &vec, &len) < 0)
@@ -254,7 +265,8 @@ int trans_commit(clixon_handle h, transaction_data td)
 		char* interface_name = get_interface_name_from_parent(vec[i]);
 		clixon_log(h, LOG_INFO, "[%s]: Remove trunk VLAN ID \"%s\" from interface \"%s\"", NAME, value, interface_name);
 
-		systemf("bridge vlan del dev %s vid %s", interface_name, value);
+		if(systemf("bridge vlan del dev %s vid %s", interface_name, value) != 0)
+			goto done;
 	}
 
 	/* New entries*/
@@ -265,7 +277,8 @@ int trans_commit(clixon_handle h, transaction_data td)
 		char* interface_name = get_interface_name_from_parent(vec[i]);
 		clixon_log(h, LOG_INFO, "[%s]: Add access VLAN ID \"%s\" to interface \"%s\"", NAME, value, interface_name);
 
-		systemf("bridge vlan add dev %s vid %s pvid untagged", interface_name, value);
+		if(systemf("bridge vlan add dev %s vid %s pvid untagged", interface_name, value) != 0)
+			goto done;
 	}
 
 	if (xpath_vec_flag(xmlconfig_target, NULL, "//interface/ethernet/switched-vlan/config/trunk-vlans", XML_FLAG_ADD | XML_FLAG_CHANGE, &vec, &len) < 0)
@@ -275,10 +288,12 @@ int trans_commit(clixon_handle h, transaction_data td)
 		char* interface_name = get_interface_name_from_parent(vec[i]);
 		clixon_log(h, LOG_INFO, "[%s]: Add trunk VLAN ID \"%s\" to interface \"%s\"", NAME, value, interface_name);
 
-		systemf("bridge vlan add dev %s vid %s pvid", interface_name, value);
+		if(systemf("bridge vlan add dev %s vid %s pvid", interface_name, value) != 0)
+			goto done;
 	}
 
-    retval = 0;
+	retval = 0;
+
  done:
 	if(vec)
 		free(vec);
