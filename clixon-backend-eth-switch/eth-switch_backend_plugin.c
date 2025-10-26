@@ -252,7 +252,7 @@ cxobj *iterate_over_all_xml_nodes(clixon_handle h, cxobj *node, bool *unimplemen
 			iterate_over_all_xml_nodes(h, x, unimplemented_node_found);
 		}
 		else {
-			if(xml_flag(x, XML_FLAG_ADD) != 0) { // Check only new nodes
+			if(xml_flag(x, XML_FLAG_ADD | XML_FLAG_CHANGE) != 0) { // Check only new and changed nodes
 				char  *xpath = NULL;
 				xml2xpath(x, NULL, 0, 0, &xpath);
 				char xpath_without_brackets[strlen(xpath) + 1];
@@ -289,20 +289,19 @@ int trans_commit(clixon_handle h, transaction_data td)
     xmlconfig_target = transaction_target(td); /* wanted XML tree */
 	xmlconfig_src = transaction_src(td); /* existing XML tree */
 
-	bool first_run = false;
+	//xml_print(stdout, xmlconfig_src);
 
-	if(xml_child_nr(xmlconfig_src) == 0)
-		first_run = true;
+	bool configured = false;
+	if(xpath_vec_bool(xmlconfig_src, NULL, "/interfaces") != 0)
+		configured = true;
 	
-	if(!first_run) { // Not first run, check for unimplemented nodes. For the first run, we accept all nodes
+	if(configured) { // Not first run, check for unimplemented nodes. For the first run, we accept all nodes
 		bool unimplemented_node_found = false;
 		iterate_over_all_xml_nodes(h, xmlconfig_target, &unimplemented_node_found);
 
 		if(unimplemented_node_found)
 			goto done;
 	}
-
-    //xml_print(stdout, xmlconfig_src);
 
 	/* Removed entries */
 	if (xpath_vec_flag(xmlconfig_src, NULL, "/interfaces/interface/ethernet/switched-vlan/config/access-vlan", XML_FLAG_DEL| XML_FLAG_CHANGE, &vec, &len) < 0)
