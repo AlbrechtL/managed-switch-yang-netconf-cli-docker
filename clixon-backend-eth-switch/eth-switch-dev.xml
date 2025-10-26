@@ -1,5 +1,5 @@
 <clixon-config xmlns="http://clicon.org/config">
-  <CLICON_CONFIGFILE>/home/albrecht/src/clixon-backend-helper/clixon-backend-eth-switch/eth-switch.xml</CLICON_CONFIGFILE>
+  <CLICON_CONFIGFILE>/home/albrecht/src/clixon-backend-helper/clixon-backend-eth-switch/eth-switch-dev.xml</CLICON_CONFIGFILE>
   <CLICON_CONFIGDIR>/home/albrecht/src/clixon-backend-helper/clixon-backend-eth-switch</CLICON_CONFIGDIR>
   <CLICON_FEATURE>ietf-netconf:startup</CLICON_FEATURE>
   <CLICON_FEATURE>clixon-restconf:allow-auth-none</CLICON_FEATURE>
