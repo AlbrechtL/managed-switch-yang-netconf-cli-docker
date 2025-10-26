@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <inttypes.h>
 #include <string.h>
 #include <errno.h>
@@ -48,11 +49,7 @@
 
 /* clicon */
 #include <cligen/cligen.h>
-
-/* Clicon library functions. */
 #include <clixon/clixon.h>
-
-/* These include signatures for plugin and transaction callbacks. */
 #include <clixon/clixon_backend.h> 
 #include <clixon/clixon_log.h>
 
@@ -230,6 +227,55 @@ int systemf(const char *fmt, ...) {
     return ret;
 }
 
+// Remove brackets and their content from xpath string
+void filter_xpath(const char *src, char *dest) {
+    int i, j = 0, inside = 0;
+
+    for (i = 0; src[i] != '\0'; i++) {
+        if (src[i] == '[') inside = 1;
+        else if (src[i] == ']') inside = 0;
+        else if (!inside) dest[j++] = src[i];
+    }
+
+    dest[j] = '\0';
+}
+
+// Recursively iterate over all new XML nodes and check if they are supported
+cxobj *iterate_over_all_xml_nodes(clixon_handle h, cxobj *node, bool *unimplemented_node_found)
+{
+	cxobj *x = NULL;
+
+	while ((x = xml_child_each(node, x, -1)) != NULL) {
+		int num = xml_child_nr_notype(x, CX_BODY); // Filter out body nodes
+
+		if(num > 0) {
+			iterate_over_all_xml_nodes(h, x, unimplemented_node_found);
+		}
+		else {
+			if(xml_flag(x, XML_FLAG_ADD) != 0) { // Check only new nodes
+				char  *xpath = NULL;
+				xml2xpath(x, NULL, 0, 0, &xpath);
+				char xpath_without_brackets[strlen(xpath) + 1];
+				filter_xpath(xpath,xpath_without_brackets);
+
+				clixon_log(h, LOG_INFO, "[%s]: New XML child %s", NAME, xpath);
+				
+				// Check if the new node is supported. The following list contains supported nodes.
+				if(strcmp(xpath_without_brackets, "/interfaces/interface/ethernet/switched-vlan/config/access-vlan") != 0
+					&& strcmp(xpath_without_brackets, "/interfaces/interface/ethernet/switched-vlan/config/trunk-vlans") != 0
+					&& strcmp(xpath_without_brackets, "/interfaces/interface/ethernet/switched-vlan/config/interface-mode") != 0)
+				{
+					*unimplemented_node_found = true;
+					clixon_err(OE_FATAL, 0, ": \"%s\" not implemented.", xpath_without_brackets);
+				}
+				free(xpath);
+			}
+		}
+	}
+
+	return x;
+}
+
 int trans_commit(clixon_handle h, transaction_data td)
 {
     int   retval = -1;
@@ -243,10 +289,23 @@ int trans_commit(clixon_handle h, transaction_data td)
     xmlconfig_target = transaction_target(td); /* wanted XML tree */
 	xmlconfig_src = transaction_src(td); /* existing XML tree */
 
-    //xml_print(stdout, xmlconfig);
+	bool first_run = false;
+
+	if(xml_child_nr(xmlconfig_src) == 0)
+		first_run = true;
+	
+	if(!first_run) { // Not first run, check for unimplemented nodes. For the first run, we accept all nodes
+		bool unimplemented_node_found = false;
+		iterate_over_all_xml_nodes(h, xmlconfig_target, &unimplemented_node_found);
+
+		if(unimplemented_node_found)
+			goto done;
+	}
+
+    //xml_print(stdout, xmlconfig_src);
 
 	/* Removed entries */
-	if (xpath_vec_flag(xmlconfig_src, NULL, "//interface/ethernet/switched-vlan/config/access-vlan", XML_FLAG_DEL| XML_FLAG_CHANGE, &vec, &len) < 0)
+	if (xpath_vec_flag(xmlconfig_src, NULL, "/interfaces/interface/ethernet/switched-vlan/config/access-vlan", XML_FLAG_DEL| XML_FLAG_CHANGE, &vec, &len) < 0)
         goto done;
 	for (i=0; i<len; i++) {
 		char* value = xml_value(xml_body_get(vec[i]));
@@ -257,7 +316,7 @@ int trans_commit(clixon_handle h, transaction_data td)
 			goto done;
 	}
 
-	if (xpath_vec_flag(xmlconfig_src, NULL, "//interface/ethernet/switched-vlan/config/trunk-vlans", XML_FLAG_DEL, &vec, &len) < 0)
+	if (xpath_vec_flag(xmlconfig_src, NULL, "/interfaces/interface/ethernet/switched-vlan/config/trunk-vlans", XML_FLAG_DEL, &vec, &len) < 0)
         goto done;
 	for (i=0; i<len; i++) {
 		char* value = xml_value(xml_body_get(vec[i]));
@@ -269,7 +328,7 @@ int trans_commit(clixon_handle h, transaction_data td)
 	}
 
 	/* New entries*/
-	if (xpath_vec_flag(xmlconfig_target, NULL, "//interface/ethernet/switched-vlan/config/access-vlan", XML_FLAG_ADD | XML_FLAG_CHANGE, &vec, &len) < 0)
+	if (xpath_vec_flag(xmlconfig_target, NULL, "/interfaces/interface/ethernet/switched-vlan/config/access-vlan", XML_FLAG_ADD | XML_FLAG_CHANGE, &vec, &len) < 0)
         goto done;
 	for (i=0; i<len; i++) {
 		char* value = xml_value(xml_body_get(vec[i]));
@@ -280,7 +339,7 @@ int trans_commit(clixon_handle h, transaction_data td)
 			goto done;
 	}
 
-	if (xpath_vec_flag(xmlconfig_target, NULL, "//interface/ethernet/switched-vlan/config/trunk-vlans", XML_FLAG_ADD | XML_FLAG_CHANGE, &vec, &len) < 0)
+	if (xpath_vec_flag(xmlconfig_target, NULL, "/interfaces/interface/ethernet/switched-vlan/config/trunk-vlans", XML_FLAG_ADD | XML_FLAG_CHANGE, &vec, &len) < 0)
         goto done;
 	for (i=0; i<len; i++) {
 		char* value = xml_value(xml_body_get(vec[i]));
