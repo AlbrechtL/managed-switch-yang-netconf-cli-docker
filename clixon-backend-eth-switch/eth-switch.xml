@@ -9,14 +9,14 @@
   <CLICON_CLI_MODE>eth-switch</CLICON_CLI_MODE>
   <CLICON_CLI_LINESCROLLING>0</CLICON_CLI_LINESCROLLING>
   <CLICON_CLI_TAB_MODE>0</CLICON_CLI_TAB_MODE>
-  <CLICON_CLI_HIST_FILE>/var/tmp/clixon_cli_history</CLICON_CLI_HIST_FILE>
+  <CLICON_CLI_HIST_FILE>/storage/eth-switch/clixon_cli_history</CLICON_CLI_HIST_FILE>
   <CLICON_CLISPEC_DIR>/usr/local/lib/eth-switch/clispec</CLICON_CLISPEC_DIR>
   <CLICON_BACKEND_DIR>/usr/local/lib/eth-switch/backend</CLICON_BACKEND_DIR>
   <CLICON_SOCK>/var/tmp/eth-switch.sock</CLICON_SOCK>
   <CLICON_BACKEND_PIDFILE>/var/tmp/eth-switch.pidfile</CLICON_BACKEND_PIDFILE>
   <!-- true here means restconf config is in datastore -->
   <CLICON_BACKEND_RESTCONF_PROCESS>true</CLICON_BACKEND_RESTCONF_PROCESS>
-  <CLICON_XMLDB_DIR>/usr/local/var/eth-switch</CLICON_XMLDB_DIR>
+  <CLICON_XMLDB_DIR>/storage/eth-switch</CLICON_XMLDB_DIR>
   <CLICON_STARTUP_MODE>init</CLICON_STARTUP_MODE>
   <CLICON_SOCK_GROUP>clicon</CLICON_SOCK_GROUP>
   <CLICON_RESTCONF_USER>clicon</CLICON_RESTCONF_USER>

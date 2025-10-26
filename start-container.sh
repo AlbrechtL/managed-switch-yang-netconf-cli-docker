@@ -75,6 +75,12 @@ if [ -n "${SW_IF:-}" ]; then
     ip link set dev br0 up
 fi
 
+# Ensure /storage/eth-switch directory exists
+if [ ! -d "/storage/eth-switch" ]; then
+  echo "Creating /storage/eth-switch directory..."
+  mkdir -p /storage/eth-switch
+fi
+
 # Start processes
 exec multirun \
   "clixon_backend -F -D default -s startup" \
