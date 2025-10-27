@@ -79,6 +79,8 @@ fi
 if [ ! -d "/storage/eth-switch" ]; then
   echo "Creating /storage/eth-switch directory..."
   mkdir -p /storage/eth-switch
+
+  cp /usr/local/var/eth-switch/startup_db /storage/eth-switch/
 fi
 
 # Start processes
