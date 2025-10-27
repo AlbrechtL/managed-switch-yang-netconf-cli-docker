@@ -8,9 +8,10 @@ import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule} from '@angular/material/tooltip';
 import { Observable } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
+import { map, tap, shareReplay } from 'rxjs/operators';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { RouterOutlet, RouterModule } from '@angular/router';
+import { BackendCommunicationService } from '../backend-communication.service';
 
 @Component({
   selector: 'app-side-navigation',
@@ -39,10 +40,13 @@ export class SideNavigationComponent {
       shareReplay()
     );
 
+  urlPrefix: string = 'http://localhost:8888'; // Just for development
+
+  constructor(private service: BackendCommunicationService) {}
+
   commitSettings() {
     console.log("Committing settings...");
-
-
+    this.service.commitSettings().subscribe();
   }
 
   saveSettings() {
