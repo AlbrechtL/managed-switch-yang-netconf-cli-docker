@@ -3,3 +3,10 @@
 *~
 *.pyc
 
+web-frontend/node_modules
+web-frontend/.angular/cache
+
+# Node
+/node_modules
+npm-debug.log
+yarn-error.log
