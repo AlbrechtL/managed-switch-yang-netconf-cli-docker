@@ -1,8 +1,9 @@
-import { Component, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { BackendCommunicationService } from '../backend-communication.service';
@@ -15,16 +16,28 @@ import { BackendCommunicationService } from '../backend-communication.service';
     MatIconModule,
     MatButtonModule,
     MatCardModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatDialogModule
   ],
   templateUrl: './console.component.html',
   styleUrl: './console.component.scss'
 })
-export class ConsoleComponent implements AfterViewInit, OnDestroy {
+export class ConsoleComponent {
+  readonly dialog = inject(MatDialog);
   
-  ngAfterViewInit(): void {
-  }
+  openHelpDialog() {
+    const dialogRef = this.dialog.open(DialogContentHelpDialog);
 
-  ngOnDestroy(): void {
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(`Dialog result: ${result}`);
+    });
   }
 }
+
+@Component({
+  selector: 'dialog-content-help-dialog',
+  templateUrl: 'help-dialog.html',
+  imports: [MatDialogModule, MatButtonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class DialogContentHelpDialog {}

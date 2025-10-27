@@ -19,6 +19,7 @@ import { RouterOutlet, RouterModule } from '@angular/router';
   standalone: true,
   imports: [
     MatToolbarModule,
+    MatButtonModule,
     MatSidenavModule,
     MatListModule,
     MatIconModule,
@@ -37,4 +38,14 @@ export class SideNavigationComponent {
       map(result => result.matches),
       shareReplay()
     );
+
+  commitSettings() {
+    console.log("Committing settings...");
+
+
+  }
+
+  saveSettings() {
+    console.log("Saving settings...");
+  }
 }

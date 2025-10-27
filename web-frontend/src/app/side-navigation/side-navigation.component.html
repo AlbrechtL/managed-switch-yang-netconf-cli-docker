@@ -6,7 +6,7 @@
     <mat-toolbar>Menu</mat-toolbar>
     <mat-nav-list>
       <a mat-list-item [routerLink]="['dashboard']">Dashboard</a>
-      <a mat-list-item [routerLink]="['vlan']">VLAN</a>
+      <!-- <a mat-list-item [routerLink]="['vlan']">VLAN</a> -->
       <a mat-list-item [routerLink]="['console']">Console</a>
       <a mat-list-item [routerLink]="['info']">Info</a>
     </mat-nav-list>
@@ -22,7 +22,14 @@
           <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
         </button>
       }
-        <span>Ethernet switch management console</span>
+      <span>Ethernet switch management console</span>
+      <span class="example-spacer"></span>
+      <button matButton="filled" class="mat-button-custom" (click)="commitSettings()">
+        Commit
+      </button>
+      <button matButton="filled" (click)="saveSettings()">
+        Save
+      </button>
     </mat-toolbar>
     <div class="content-container">
       <router-outlet />

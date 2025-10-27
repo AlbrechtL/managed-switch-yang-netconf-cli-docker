@@ -1,43 +1,16 @@
 <div class="grid-container">
   <mat-grid-list cols="2" rowHeight="fit" class="dashboard-grid-list">
-    <mat-grid-tile [colspan]="2" [rowspan]="1">
-      <mat-card class="dashboard-card">
-        <mat-card-header>
-          <mat-card-title>
-            Web console
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content class="dashboard-card-content">
-          <div style="flex: 1; margin: 0; padding: 1em; background: #f5f5f5; overflow: auto;">
-            <div style="background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 1em; margin-bottom: 1em; border-radius: 4px;">
-                <strong>Disclaimer:</strong> This environment is intended for demonstration purposes only. The console below provides unrestricted root access without a password. <b>Do not use this setup in production or expose it to untrusted networks.</b>
-            </div>
-            <p>
-            The managed switch console lets you interact with your network configuration using commands similar to Juniper or Cisco devices. You can view, edit, and commit configuration changes.
-            </p>
-            <ul>
-            <li><b>show</b> – Display current configuration or state.</li>
-            <li><b>set</b> – Modify configuration data.</li>
-            <li><b>delete</b> – Remove configuration entries.</li>
-            <li><b>commit</b> – Apply your changes.</li>
-            <li><b>quit</b> – Leave the CLI session.</li>
-            <li><b>?</b> – Display help.</li>
-            </ul>
-            <p>
-            See the <a href="https://clixon-docs.readthedocs.io/en/latest/quickstart.html#using-the-cli" target="_blank">Clixon CLI Quickstart</a> for more details.
-            </p>
-        </div>
-        </mat-card-content>
-      </mat-card>
-    </mat-grid-tile>
-
     <mat-grid-tile [colspan]="1" [rowspan]="1">
       <mat-card class="dashboard-card">
         <mat-card-header>
           <mat-card-title>Device information</mat-card-title>
         </mat-card-header>
         <mat-card-content class="dashboard-card-content">
-          
+          <div style="flex: 1; margin: 0; padding: 1em; background: #f5f5f5; overflow: auto;">
+            <div style="background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 1em; margin-bottom: 1em; border-radius: 4px;">
+                <strong>Disclaimer:</strong> This container is intended for demonstration purposes only. The console provides unrestricted root access without a password. <b>Do not use this setup in production or expose it to untrusted networks.</b>
+            </div>
+        </div>
         </mat-card-content>
       </mat-card>
     </mat-grid-tile>

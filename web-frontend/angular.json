@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "switch-mangement-console": {
+    "switch-management-console": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "outputPath": "dist/switch-mangement-console",
+            "outputPath": "dist/switch-management-console",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -68,10 +68,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "switch-mangement-console:build:production"
+              "buildTarget": "switch-management-console:build:production"
             },
             "development": {
-              "buildTarget": "switch-mangement-console:build:development"
+              "buildTarget": "switch-management-console:build:development"
             }
           },
           "defaultConfiguration": "development"

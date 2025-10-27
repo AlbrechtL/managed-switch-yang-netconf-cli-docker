@@ -50,6 +50,22 @@ RUN cd /clixon/clixon-backend-eth-switch \
     && cp -r /clixon/clixon-backend-eth-switch/yang/openconfig/ /clixon/build/usr/local/share/openconfig/
 
 
+########################################################################################################################
+# Build stage for angular frontend
+########################################################################################################################
+
+FROM node:latest AS build-frontend
+
+WORKDIR /usr/local/app
+COPY ./web-frontend /usr/local/app/
+
+# See https://github.com/nodejs/docker-node/issues/1668
+#RUN npm update -g npm
+#RUN npm ci --no-audit --maxsockets 1
+
+RUN npm install
+RUN npm run build -- "--base-href='./'"
+
 
 ########################################################################################################################
 # clixon Docker image
@@ -106,7 +122,7 @@ RUN echo "Subsystem netconf /usr/local/bin/clixon_netconf" >> /etc/ssh/sshd_conf
 # Copy stuff into this container
 COPY motd /etc/motd
 COPY nginx.conf /etc/nginx/http.d/
-COPY index.html /var/www
+COPY --from=build-frontend /usr/local/app/dist/switch-management-console /var/www/
 COPY *.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/*.sh
 

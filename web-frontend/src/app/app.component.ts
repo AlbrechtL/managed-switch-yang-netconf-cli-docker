@@ -15,5 +15,5 @@ import { SideNavigationComponent } from "./side-navigation/side-navigation.compo
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
-  title = 'switch-mangement-console';
+  title = 'switch-management-console';
 }
