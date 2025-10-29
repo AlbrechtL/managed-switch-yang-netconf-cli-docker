@@ -6,9 +6,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { BackendCommunicationService } from '../backend-communication.service';
-
-
 @Component({
   selector: 'app-console',
   imports: [

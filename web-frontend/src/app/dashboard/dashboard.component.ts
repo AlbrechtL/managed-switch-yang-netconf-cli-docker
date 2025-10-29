@@ -7,8 +7,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatListModule } from '@angular/material/list';
 import { HttpClient } from '@angular/common/http';
-import { BackendCommunicationService } from '../backend-communication.service';
-
 
 @Component({
   selector: 'app-dashboard',
@@ -30,7 +28,7 @@ export class DashboardComponent {
 
   ethernetInterfaces?: any;
 
-  constructor(private service: BackendCommunicationService, private http: HttpClient) {
+  constructor(private http: HttpClient) {
     const tmpPorts = [];
     tmpPorts.push("dummy port 1")
     tmpPorts.push("dummy port 2")

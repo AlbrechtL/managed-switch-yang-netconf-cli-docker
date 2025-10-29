@@ -4,8 +4,6 @@ import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
-import { BackendCommunicationService } from '../backend-communication.service';
-
 
 @Component({
   selector: 'app-info',
@@ -17,7 +15,7 @@ export class InfoComponent {
   readonly dialog = inject(MatDialog);
   containerBuildDate?: string;
 
-  constructor(private service: BackendCommunicationService) {
+  constructor() {
     // this.service.getVersion().subscribe(response => {
     //   this.containerBuildDate = response.containerBuildDate;
     // });
