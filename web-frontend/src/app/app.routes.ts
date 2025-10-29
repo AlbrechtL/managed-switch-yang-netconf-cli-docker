@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { ConsoleComponent } from './console/console.component';
 import { InfoComponent } from './info/info.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { VlanComponent } from './vlan/vlan.component';
 
 export const routes: Routes = [
   { // Redirect to 'status' by default
@@ -13,6 +14,11 @@ export const routes: Routes = [
     path: 'dashboard',
     component: DashboardComponent,
     title: 'Dashboard'
+  },
+  {
+    path: 'vlan',
+    component: VlanComponent,
+    title: 'VLAN'
   },
   {
     path: 'console',

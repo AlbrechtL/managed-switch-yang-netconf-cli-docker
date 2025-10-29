@@ -1,0 +1,29 @@
+<div class="grid-container">
+  <mat-grid-list cols="2" rowHeight="fit" class="dashboard-grid-list">
+    @for (ethernetInterface of vlanEntries; track ethernetInterface) {
+        <mat-grid-tile [colspan]="1" [rowspan]="1">
+            <mat-card class="dashboard-card">
+                <mat-card-header>
+                    <mat-card-title>{{ ethernetInterface[0] }}</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="dashboard-card-content">
+                    <br />
+                    <mat-form-field >
+                        <mat-label>VLAN port mode</mat-label>
+                        <mat-select [value]="ethernetInterface[1]?.['config']?.['interface-mode']">
+                            <mat-option>--</mat-option>
+                            @for (interfaceMode of interfaceModes; track interfaceMode) {
+                            <mat-option [value]="interfaceMode">{{interfaceMode}}</mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>VLAN IDs</mat-label>
+                        <input matInput [value]="ethernetInterface[1]?.['config']?.['interface-mode'] === 'ACCESS' ? ethernetInterface[1]?.['config']?.['access-vlan'] : ethernetInterface[1]?.['config']?.['trunk-vlans']" />
+                    </mat-form-field>
+                </mat-card-content>
+            </mat-card>
+        </mat-grid-tile>
+    }
+  </mat-grid-list>
+</div>
