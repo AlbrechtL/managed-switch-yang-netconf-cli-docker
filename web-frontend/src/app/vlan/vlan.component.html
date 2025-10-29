@@ -17,6 +17,7 @@
                             }
                         </mat-select>
                     </mat-form-field>
+                    <br />
                     <mat-form-field>
                         <mat-label>VLAN IDs</mat-label>
                         <input matInput [value]="ethernetInterface[1]?.['config']?.['interface-mode'] === 'ACCESS' ? ethernetInterface[1]?.['config']?.['access-vlan'] : ethernetInterface[1]?.['config']?.['trunk-vlans']" />
