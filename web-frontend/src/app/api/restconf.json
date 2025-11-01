@@ -1,0 +1,294 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "RESTCONF API",
+    "version": "1.0.0",
+    "description": "OpenAPI specification for the RESTCONF API endpoints at /rest/restconf/"
+  },
+  "servers": [
+    {
+      "url": "/rest/restconf",
+      "description": "Local Clixon RESTCONF server"
+    }
+  ],
+  "paths": {
+    "/operations": {
+      "get": {
+        "summary": "List all available RESTCONF operations",
+        "operationId": "getOperations",
+        "responses": {
+          "200": {
+            "description": "List of available operations",
+            "content": {
+              "application/yang-data+json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "ietf-restconf:operations": {
+                      "openconfig-system:reboot": {},
+                      "openconfig-interfaces:clear-counters": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Execute a RESTCONF operation",
+        "operationId": "executeOperation",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/yang-data+json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "openconfig-system:reboot": {
+                    "input": {
+                      "delay": 10
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operation executed successfully",
+            "content": {
+              "application/yang-data+json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "output": {
+                      "status": "OK"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid request" },
+          "500": { "description": "Internal server error" }
+        }
+      }
+    },
+    "/operations/ietf-netconf:commit": {
+      "post": {
+        "summary": "Execute the <commit> NETCONF RPC (ietf-netconf)",
+        "operationId": "commit",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/yang-data+json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "ietf-netconf:input": {}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Commit executed successfully" },
+          "500": { "description": "Internal server error" }
+        }
+      }
+    },
+    "/data/openconfig-interfaces:interfaces/": {
+      "get": {
+        "summary": "Get list of interfaces",
+        "operationId": "listInterfaces",
+        "responses": {
+          "200": {
+            "description": "List of interfaces",
+            "content": {
+              "application/yang-data+json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "openconfig-interfaces:interfaces": {
+                      "interface": [
+                        {
+                          "name": "lan1",
+                          "config": {
+                            "name": "lan1",
+                            "type": "iana-if-type:ethernetCsmacd"
+                          }
+                        },
+                        {
+                          "name": "lan2",
+                          "config": {
+                            "name": "lan2",
+                            "type": "iana-if-type:ethernetCsmacd"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create or replace an interface",
+        "operationId": "createInterface",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/yang-data+json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "openconfig-interfaces:interfaces": {
+                    "interface": [
+                      {
+                        "name": "lan3",
+                        "config": {
+                          "name": "lan3",
+                          "type": "iana-if-type:ethernetCsmacd"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Interface created" },
+          "400": { "description": "Invalid input" }
+        }
+      }
+    },
+    "/data/openconfig-interfaces:interfaces/interface={ifName}/openconfig-if-ethernet:ethernet/openconfig-vlan:switched-vlan": {
+        "parameters": [
+            {
+                "name": "ifName",
+                "in": "path",
+                "description": "Interface identifier (for example: lan1)",
+                "required": true,
+                "schema": { "type": "string" },
+                "example": "lan1"
+            }
+        ],
+        "get": {
+            "summary": "Get VLAN configuration of an interface",
+            "operationId": "getVlanConfig",
+            "responses": {
+                "200": {
+                    "description": "VLAN configuration retrieved successfully",
+                    "content": {
+                        "application/yang-data+json": {
+                            "schema": {
+                                "type": "object",
+                                "example": {
+                                    "openconfig-vlan:switched-vlan": {
+                                        "config": {
+                                            "interface-mode": "TRUNK",
+                                            "trunk-vlans": [10, 20, 30]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "404": { "description": "Interface or VLAN not found" }
+            }
+        },
+        "patch": {
+            "summary": "Update VLAN configuration of an interface",
+            "operationId": "patchVlanConfig",
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/yang-data+json": {
+                        "schema": {
+                            "type": "object",
+                            "example": {
+                                "openconfig-vlan:switched-vlan": {
+                                    "config": {
+                                        "interface-mode": "ACCESS",
+                                        "access-vlan": 100
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "responses": {
+                "204": { "description": "VLAN configuration updated successfully" },
+                "400": { "description": "Invalid input data" }
+            }
+        },
+        "post": {
+            "summary": "Create or overwrite VLAN configuration on an interface",
+            "operationId": "postVlanConfig",
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/yang-data+json": {
+                        "schema": {
+                            "type": "object",
+                            "example": {
+                                "openconfig-vlan:switched-vlan": {
+                                    "config": {
+                                        "interface-mode": "TRUNK",
+                                        "trunk-vlans": [100, 200]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "responses": {
+                "201": { "description": "VLAN configuration created" },
+                "400": { "description": "Invalid request" }
+            }
+        },
+        "delete": {
+            "summary": "Delete VLAN configuration on an interface",
+            "operationId": "deleteVlanConfig",
+            "responses": {
+                "204": { "description": "VLAN configuration deleted" },
+                "404": { "description": "Entry not found" }
+            }
+        }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SwitchedVlan": {
+        "type": "object",
+        "properties": {
+          "config": {
+            "type": "object",
+            "properties": {
+              "interface-mode": {
+                "type": "string",
+                "enum": ["ACCESS", "TRUNK"]
+              },
+              "access-vlan": {
+                "type": "integer"
+              },
+              "trunk-vlans": {
+                "type": "array",
+                "items": { "type": "integer" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
