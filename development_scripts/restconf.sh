@@ -25,14 +25,45 @@ pushVLAN() {
 }
 
 commit() {
-curl -X POST \
-  -u admin:admin \
+   curl -X POST \
+   -u admin:admin \
+   -H "Content-Type: application/yang-data+json" \
+   -H "Accept: application/yang-data+json" \
+   $URL_BASE/rest/restconf/operations/ietf-netconf:commit \
+   -d '{
+         "ietf-netconf:input": {}
+         }'
+}
+
+getconf() {
+   curl -X POST \
   -H "Content-Type: application/yang-data+json" \
   -H "Accept: application/yang-data+json" \
-  $URL_BASE/rest/restconf/operations/ietf-netconf:commit \
+  $URL_BASE/rest/restconf/operations/ietf-netconf:get-config \
   -d '{
-        "ietf-netconf:input": {}
-      }'
+    "ietf-netconf:input": {
+      "source": {
+        "running": {}
+      }
+    }
+  }'
+}
+
+copyconfig() {
+   curl -X POST \
+  -H "Content-Type: application/yang-data+json" \
+  -H "Accept: application/yang-data+json" \
+  $URL_BASE/rest/restconf/operations/ietf-netconf:copy-config \
+  -d '{
+    "ietf-netconf:input": {
+      "target": {
+        "startup": {}
+      },
+      "source": {
+        "running": {}
+      }
+    }
+  }'
 }
 
 getVLAN() {
@@ -43,16 +74,18 @@ getVLAN() {
 
 
 usage() {
-   echo "Usage: $0 [-a] [-b] [-c] [-d] [-h]"
+   echo "Usage: $0 [-a] [-b] [-c] [-d] [-e] [-f] [-h]"
    exit 1
 }
 
-while getopts "abcdh" opt; do
+while getopts "abcdefh" opt; do
    case "$opt" in
       a) getName ;;
       b) pushVLAN ;;
       c) getVLAN ;;
       d) commit ;;
+      e) getconf ;;
+      f) copyconfig ;;
       h) usage ;;
       *) usage ;;
    esac

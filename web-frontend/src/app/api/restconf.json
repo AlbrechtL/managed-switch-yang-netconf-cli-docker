@@ -3,7 +3,7 @@
   "info": {
     "title": "RESTCONF API",
     "version": "1.0.0",
-    "description": "OpenAPI specification for the RESTCONF API endpoints at /rest/restconf/"
+    "description": "OpenAPI specification for the RESTCONF API endpoints at /rest/restconf/. See RFC 6241 and RFC 8040 for details."
   },
   "servers": [
     {
@@ -97,6 +97,64 @@
           "200": { "description": "Commit executed successfully" },
           "500": { "description": "Internal server error" }
         }
+      }
+    },
+    "/operations/ietf-netconf:get-config": {
+      "post": {
+      "summary": "Execute the <get-config> NETCONF RPC (ietf-netconf)",
+      "operationId": "getConfig",
+      "requestBody": {
+        "required": true,
+        "content": {
+        "application/yang-data+json": {
+          "schema": {
+          "type": "object",
+          "example": {
+            "ietf-netconf:input": {
+            "source": {
+              "running": {}
+            }
+            }
+          }
+          }
+        }
+        }
+      },
+      "responses": {
+        "200": { "description": "Get-config executed successfully" },
+        "500": { "description": "Internal server error" }
+      }
+      }
+    },
+    "/operations/ietf-netconf:copy-config": {
+      "post": {
+      "summary": "Execute the <copy-config> NETCONF RPC (ietf-netconf)",
+      "operationId": "copyConfig",
+      "requestBody": {
+        "required": true,
+        "content": {
+        "application/yang-data+json": {
+          "schema": {
+          "type": "object",
+          "example": {
+            "ietf-netconf:input": {
+            "target": {
+              "startup": {}
+            },
+            "source": {
+              "running": {}
+            }
+            }
+          }
+          }
+        }
+        }
+      },
+      "responses": {
+        "200": { "description": "Copy-config executed successfully" },
+        "400": { "description": "Invalid request" },
+        "500": { "description": "Internal server error" }
+      }
       }
     },
     "/data/": {
