@@ -99,6 +99,25 @@
         }
       }
     },
+    "/data/": {
+      "get": {
+      "summary": "Get root data container",
+      "operationId": "getDataRoot",
+      "responses": {
+        "200": {
+        "description": "Root data retrieved successfully",
+        "content": {
+          "application/yang-data+json": {
+          "schema": {
+            "type": "object",
+            "example": {}
+          }
+          }
+        }
+        }
+      }
+      }
+    },
     "/data/openconfig-interfaces:interfaces/": {
       "get": {
         "summary": "Get list of interfaces",
@@ -165,6 +184,103 @@
         "responses": {
           "201": { "description": "Interface created" },
           "400": { "description": "Invalid input" }
+        }
+      }
+    },
+    "/data/openconfig-interfaces:interfaces/interface={ifName}/openconfig-if-ethernet:ethernet": {
+      "parameters": [
+        {
+          "name": "ifName",
+          "in": "path",
+          "description": "Interface identifier (for example: lan2)",
+          "required": true,
+          "schema": { "type": "string" },
+          "example": "lan2"
+        }
+      ],
+      "get": {
+        "summary": "Get ethernet configuration of an interface",
+        "operationId": "getEthernet",
+        "responses": {
+          "200": {
+            "description": "Ethernet configuration retrieved successfully",
+            "content": {
+              "application/yang-data+json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "openconfig-vlan:switched-vlan": {
+                      "config": {
+                        "interface-mode": "TRUNK",
+                        "trunk-vlans": [100, 200]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "description": "Interface not found" }
+        }
+      },
+      "patch": {
+        "summary": "Update ethernet configuration of an interface",
+        "operationId": "patchEthernet",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/yang-data+json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "openconfig-vlan:switched-vlan": {
+                    "config": {
+                      "interface-mode": "TRUNK",
+                      "trunk-vlans": [100, 200]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": { "description": "Ethernet configuration updated successfully" },
+          "400": { "description": "Invalid input data" }
+        }
+      },
+      "post": {
+        "summary": "Create or overwrite ethernet configuration on an interface",
+        "operationId": "postEthernet",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/yang-data+json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "openconfig-vlan:switched-vlan": {
+                    "config": {
+                      "interface-mode": "TRUNK",
+                      "trunk-vlans": [100, 200]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Ethernet configuration created" },
+          "400": { "description": "Invalid request" }
+        }
+      },
+      "delete": {
+        "summary": "Delete ethernet configuration on an interface",
+        "operationId": "deleteEthernet",
+        "responses": {
+          "204": { "description": "Ethernet configuration deleted" },
+          "404": { "description": "Entry not found" }
         }
       }
     },
