@@ -37,14 +37,8 @@ body {
   color: var(--mat-sys-on-surface);
 }
 
-// html {
-//   @include mat.theme((
-//     color: (
-//       theme-type: light,
-//       primary: mat.$azure-palette,
-//       tertiary: mat.$blue-palette,
-//     ),
-//     typography: Roboto,
-//     density: 0,
-//   ));
-// }
+.mat-mdc-snack-bar-container.red-snackbar {
+    --mdc-snackbar-container-color: #ff0000;
+    --mat-mdc-snack-bar-button-color: #fff;
+    --mdc-snackbar-supporting-text-color: #fff;
+  }
