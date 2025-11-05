@@ -11,7 +11,7 @@
       "description": "Container Clixon RESTCONF server"
     },
     {
-      "url": "/u-os-app-mgnt-sw-yang/rest/restconf",
+      "url": "/mgnt-sw-yang-docker/rest/restconf",
       "description": "u-OS app Clixon RESTCONF server"
     }
   ],
