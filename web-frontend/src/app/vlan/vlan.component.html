@@ -10,10 +10,10 @@
                     <br />
                     <mat-form-field >
                         <mat-label>VLAN port mode</mat-label>
-                        <mat-select [value]="ethernetInterface[1]?.['config']?.['interface-mode']">
+                        <mat-select [value]="ethernetInterface[1]?.['config']?.['interface-mode']" (selectionChange)="interfaceModeChanged($event, ethernetInterface[0])">
                             <mat-option>--</mat-option>
                             @for (interfaceMode of interfaceModes; track interfaceMode) {
-                            <mat-option [value]="interfaceMode">{{interfaceMode}}</mat-option>
+                                <mat-option [value]="interfaceMode">{{interfaceMode}}</mat-option>
                             }
                         </mat-select>
                     </mat-form-field>
