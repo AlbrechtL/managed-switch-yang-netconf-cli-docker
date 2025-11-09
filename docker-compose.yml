@@ -6,10 +6,12 @@ services:
     image: mgnt-sw-yang-docker
     container_name: mgnt-sw-yang-docker
 
-    # environment:
-    #   # Define which physical Ethernet switch ports shall be attach into the container
-    #   # If unset -> no switch ports are attached
-    #   SW_IF: "lan1, lan2, lan3, lan4"
+    environment:
+      # Define which physical Ethernet switch ports shall be attach into the container.
+      # When you define fakelanX as interface names, dummy interfaces are created inside the container.
+      # If unset -> no switch ports are attached
+      # SW_IF: "lan1, lan2, lan3, lan4"
+      SW_IF: "fakelan0, fakelan1, fakelan2, fakelan3"
                     
     ports:
       # SSH console

@@ -67,7 +67,17 @@ if [ -n "${SW_IF:-}" ]; then
     # For all switch ports
     for iface in $SW_IF; do
         iface=$(echo "$iface" | xargs)  # Trim whitespace
-        attach_eth_if "$iface" "$iface" # Move iface from host to container
+        # If iface is dummyN (e.g. dummy0), create a dummy device in the container
+        if echo "$iface" | grep -Eq '^fakelan[0-9]+$'; then
+            echo "Creating dummy LAN interface $iface inside container..."
+            if ! ip link show "$iface" >/dev/null 2>&1; then
+              ip link add "$iface" type dummy
+            else
+              echo "Dummy interface $iface already exists."
+            fi
+        else
+            attach_eth_if "$iface" "$iface" # Move iface from host to container
+        fi
         ip link set dev "$iface" master br0 # Add iface to bridge
     done
     IFS="$OLD_IFS"
