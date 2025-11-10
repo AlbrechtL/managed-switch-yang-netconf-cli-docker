@@ -263,7 +263,23 @@ cxobj *iterate_over_all_xml_nodes(clixon_handle h, cxobj *node, bool *unimplemen
 				// Check if the new node is supported. The following list contains supported nodes.
 				if(strcmp(xpath_without_brackets, "/interfaces/interface/ethernet/switched-vlan/config/access-vlan") != 0
 					&& strcmp(xpath_without_brackets, "/interfaces/interface/ethernet/switched-vlan/config/trunk-vlans") != 0
-					&& strcmp(xpath_without_brackets, "/interfaces/interface/ethernet/switched-vlan/config/interface-mode") != 0)
+					&& strcmp(xpath_without_brackets, "/interfaces/interface/ethernet/switched-vlan/config/interface-mode") != 0
+					// Nodes without implementation but allowed to be present
+					&& strcmp(xpath_without_brackets, "/interfaces/interface/name") != 0
+					&& strcmp(xpath_without_brackets, "/interfaces/interface/config/name") != 0
+					&& strcmp(xpath_without_brackets, "/interfaces/interface/config/loopback-mode") != 0
+					&& strcmp(xpath_without_brackets, "/interfaces/interface/config/enabled") != 0
+					&& strcmp(xpath_without_brackets, "/interfaces/interface/hold-time/config/up") != 0
+					&& strcmp(xpath_without_brackets, "/interfaces/interface/hold-time/config/down") != 0
+					&& strcmp(xpath_without_brackets, "/interfaces/interface/penalty-based-aied/config/max-suppress-time") != 0
+					&& strcmp(xpath_without_brackets, "/interfaces/interface/penalty-based-aied/config/decay-half-life") != 0
+					&& strcmp(xpath_without_brackets, "/interfaces/interface/penalty-based-aied/config/suppress-threshold") != 0
+					&& strcmp(xpath_without_brackets, "/interfaces/interface/penalty-based-aied/config/reuse-threshold") != 0
+					&& strcmp(xpath_without_brackets, "/interfaces/interface/penalty-based-aied/config/flap-penalty") != 0
+					&& strcmp(xpath_without_brackets, "/interfaces/interface/ethernet/config/enable-flow-control") != 0
+					&& strcmp(xpath_without_brackets, "/interfaces/interface/ethernet/config/auto-negotiate") != 0
+					&& strcmp(xpath_without_brackets, "/interfaces/interface/ethernet/config/standalone-link-training") != 0
+				)
 				{
 					*unimplemented_node_found = true;
 					clixon_err(OE_FATAL, 0, ": \"%s\" not implemented.", xpath_without_brackets);
