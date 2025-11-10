@@ -51,6 +51,11 @@ done
 # Remove default nginx config to avoid conflicts
 rm -f /etc/nginx/http.d/default.conf
 
+# Rename Dockers eth0 to docker0
+ip link set eth0 down
+ip link set eth0 name docker0
+ip link set docker0 up
+
 # Attach interfaces specified in SW_IF environment variable
 if [ -n "${SW_IF:-}" ]; then
     OLD_IFS="$IFS"
