@@ -55,4 +55,23 @@ export class VlanComponent{
 
     this.service.restconfPost(xpath, payload);
   }
+
+  vlanIDsChanged(value: string, interfaceName: string, vlanMode: string) {
+    console.log('Selected:', value, interfaceName, vlanMode);
+
+    const xpath = `/data/openconfig-interfaces:interfaces/interface=${interfaceName}/openconfig-if-ethernet:ethernet`;
+    const payload: any = {
+      "openconfig-vlan:switched-vlan": {
+      "config": {}
+      }
+    };
+
+    if (vlanMode === 'ACCESS') {
+      payload["openconfig-vlan:switched-vlan"].config["access-vlan"] = `${value}`;
+    } else if (vlanMode === 'TRUNK') {
+      payload["openconfig-vlan:switched-vlan"].config["trunk-vlans"] = `${value}`;
+    }
+
+    this.service.restconfPost(xpath, payload);
+  }
 }

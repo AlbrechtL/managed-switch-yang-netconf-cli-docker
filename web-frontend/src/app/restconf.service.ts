@@ -9,7 +9,8 @@ import { Observable, map } from 'rxjs';
 export class RestconfService {
   private _snackBar = inject(MatSnackBar);
 
-  urlPrefix: string = '.'; // Just for development
+  //urlPrefix: string = '.'; // Just for development
+  urlPrefix: string = 'http://localhost:8888'; // Just for development
 
   constructor(private http: HttpClient) { }
 
