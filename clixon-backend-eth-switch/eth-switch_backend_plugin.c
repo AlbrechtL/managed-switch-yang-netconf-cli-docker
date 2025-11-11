@@ -123,6 +123,8 @@ static int start(clixon_handle h)
 			json_t *jn = json_object_get(entry, "ifname");
 			if (!jn || !json_is_string(jn))
 				continue;
+			if(strcmp(json_string_value(jn), "docker0") == 0) // Skip docker0 interface
+				continue;
 			
 			const char *ifname = json_string_value(jn);
 
