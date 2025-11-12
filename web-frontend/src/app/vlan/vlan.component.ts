@@ -41,10 +41,11 @@ export class VlanComponent{
     console.log('vlanEntries:', this.vlanEntries);
   }
 
-  interfaceModeChanged(event: any, interfaceName: string) {
+  async interfaceModeChanged(event: any, interfaceName: string) {
     console.log('Selected:', event.value);
 
     const xpath = `/data/openconfig-interfaces:interfaces/interface=${interfaceName}/openconfig-if-ethernet:ethernet`;
+    const xpath_patch = `/data/openconfig-interfaces:interfaces/interface=${interfaceName}/openconfig-if-ethernet:ethernet/openconfig-vlan:switched-vlan`;
     const payload = {
       "openconfig-vlan:switched-vlan": {
         "config": {
@@ -53,13 +54,20 @@ export class VlanComponent{
       }
     };
 
-    this.service.restconfPost(xpath, payload);
+    let exists = this.service.restconfGetExists(xpath_patch);
+    if (await exists) {
+      this.service.restconf('PATCH', xpath_patch, payload);
+    }
+    else {
+      this.service.restconf('POST', xpath, payload);
+    }
   }
 
-  vlanIDsChanged(value: string, interfaceName: string, vlanMode: string) {
+  async vlanIDsChanged(value: string, interfaceName: string, vlanMode: string) {
     console.log('Selected:', value, interfaceName, vlanMode);
 
     const xpath = `/data/openconfig-interfaces:interfaces/interface=${interfaceName}/openconfig-if-ethernet:ethernet`;
+    const xpath_patch = `/data/openconfig-interfaces:interfaces/interface=${interfaceName}/openconfig-if-ethernet:ethernet/openconfig-vlan:switched-vlan`;
     const payload: any = {
       "openconfig-vlan:switched-vlan": {
       "config": {}
@@ -69,9 +77,26 @@ export class VlanComponent{
     if (vlanMode === 'ACCESS') {
       payload["openconfig-vlan:switched-vlan"].config["access-vlan"] = `${value}`;
     } else if (vlanMode === 'TRUNK') {
-      payload["openconfig-vlan:switched-vlan"].config["trunk-vlans"] = `${value}`;
+      const vlanList = value
+        .split(',')
+        .map(v => v.trim())
+        .filter(v => v !== '');
+
+      for (const vlan of vlanList) {
+        const payload = {
+          "openconfig-vlan:switched-vlan": {
+            "config": { "trunk-vlans": vlan }
+          }
+        };
+      }
     }
 
-    this.service.restconfPost(xpath, payload);
+    let exists = this.service.restconfGetExists(xpath_patch);
+    if (await exists) {
+      this.service.restconf('PATCH', xpath_patch, payload);
+    }
+    else {
+      this.service.restconf('POST', xpath, payload);
+    }
   }
 }

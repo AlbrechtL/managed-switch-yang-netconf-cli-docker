@@ -42,11 +42,11 @@ export class RestconfService {
     );
   }
 
-  restconfPost(xpath: string, payload: any) {
+  restconf(method: string, xpath: string, payload: any) {
     const url = `${this.urlPrefix}/rest/restconf/${xpath}`;
 
     fetch(url, {
-      method: 'POST',
+      method: method,
       headers: { 'Content-Type': 'application/yang-data+json' },
       body: JSON.stringify(payload)
     })
@@ -72,5 +72,18 @@ export class RestconfService {
       console.error('Error while post', err);
       this._snackBar.open('Error code: ' + err, 'Dismiss', { panelClass: ['red-snackbar']});
     });
+  }
+
+  async restconfGetExists(xpath: string): Promise<boolean> {
+    const url = `${this.urlPrefix}/rest/restconf/${xpath}`;
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: { 'Accept': 'application/yang-data+json' }
+    });
+
+    if (res.ok)
+      return true;
+    else
+      return false;
   }
 }

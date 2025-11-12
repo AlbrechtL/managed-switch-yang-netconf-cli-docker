@@ -53,6 +53,6 @@ export class SideNavigationComponent {
       }
     };
 
-    this.service.restconfPost(xpath, payload);
+    this.service.restconf('POST', xpath, payload);
   }
 }
