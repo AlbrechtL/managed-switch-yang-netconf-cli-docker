@@ -66,17 +66,24 @@
         "select": [
           {
             "label": "RPi switch HAT (lan1 to lan4)",
-            "value": "lan1, lan2, lan3, lan4",
-            "default": true
+            "value": "lan1, lan2, lan3, lan4"
+          },
+          {
+            "label": "UC20-M4000 EVB-LAN9668 (eth4 to eth11)",
+            "value": "eth4, eth5, eth6, eth7, eth8, eth9, eth10, eth10"
           },
           {
             "label": "UC20-M4000 software switch (eth-x5 to eth-x7)",
-            "value": "eth-x5, eth-x6, eth-x7",
-            "default": true
+            "value": "eth-x5, eth-x6, eth-x7"
+          },
+          {
+            "label": "Dummy LAN ports (fakelan0 to fakelan3)",
+            "value": "fakelan0, fakelan1, fakelan2, fakelan3"
           },
           {
             "label": "none",
-            "value": ""
+            "value": "",
+            "default": true
           }
         ]
       }
