@@ -70,7 +70,7 @@
           },
           {
             "label": "UC20-M4000 EVB-LAN9668 (eth4 to eth11)",
-            "value": "eth4, eth5, eth6, eth7, eth8, eth9, eth10, eth10"
+            "value": "eth4, eth5, eth6, eth7, eth8, eth9, eth10, eth10, eth11"
           },
           {
             "label": "UC20-M4000 software switch (eth-x5 to eth-x7)",
