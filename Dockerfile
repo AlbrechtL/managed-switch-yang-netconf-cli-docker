@@ -49,6 +49,29 @@ RUN cd /clixon/clixon-backend-eth-switch \
     && cp -r /clixon/clixon-backend-eth-switch/yang/misc/ /clixon/build/usr/local/share/clixon/ \
     && cp -r /clixon/clixon-backend-eth-switch/yang/openconfig/ /clixon/build/usr/local/share/openconfig/
 
+########################################################################################################################
+# Build stage for mstpd
+########################################################################################################################
+FROM alpine:latest AS mstpd_build
+
+RUN apk update \
+    && apk add --no-cache \
+        git \
+        make \
+        autoconf \
+        automake \
+        build-base \
+        gcc \
+        linux-headers
+
+# Clone and build mstpd
+RUN git clone https://github.com/mstpd/mstpd.git /src/mstpd \
+    && cd /src/mstpd \
+    && ./autogen.sh \
+    && ./configure --prefix=/usr/local \
+    && make -j4 \
+    && make install \
+    && make DESTDIR=/src/build install
 
 ########################################################################################################################
 # Build stage for angular frontend
@@ -95,6 +118,9 @@ RUN apk update \
 
 # Copy clixon, cligen and clixon backend helper from build stage
 COPY --from=clixon_build /clixon/build/ /
+
+# Copy clixon, cligen and clixon backend helper from build stage
+COPY --from=mstpd_build /src/build /
 
 # Some custom configuration for SNMP
 RUN echo "master  agentx" > /etc/snmp/snmpd.conf \
