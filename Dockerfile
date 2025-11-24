@@ -62,7 +62,13 @@ RUN apk update \
         automake \
         build-base \
         gcc \
-        linux-headers
+        rsync
+
+# Get kernel headers because Aplines kernel header are too new
+RUN wget https://mirrors.edge.kernel.org/pub/linux/kernel/v6.x/linux-6.6.tar.xz \
+    && tar -xf 'linux-6.6.tar.xz' \
+    && cd linux-6.6 \
+    && make headers_install INSTALL_HDR_PATH=/usr
 
 # Clone and build mstpd
 RUN git clone https://github.com/mstpd/mstpd.git /src/mstpd \
@@ -111,6 +117,7 @@ RUN apk update \
         libsmi \
         jansson \
         ttyd \
+        strace \
     && adduser -D -H -G www-data www-data \
     && adduser -D -H clicon \
     && sed -i 's/^worker_processes.*/worker_processes 1;daemon off;/' /etc/nginx/nginx.conf \
