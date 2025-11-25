@@ -88,6 +88,12 @@ if [ -n "${SW_IF:-}" ]; then
     IFS="$OLD_IFS"
 
     ip link set dev br0 up
+
+    # Start mstp daemon (log level 10 from 100, log to syslog)
+    mstpd -v 10 -s
+
+    # Adding bridge to MSTP daemon to make it possible to use RSTP
+    mstpctl addbridge br0
 fi
 
 # Ensure /storage/eth-switch directory exists
@@ -99,6 +105,9 @@ if [ ! -d "/storage/eth-switch" ]; then
 fi
 
 # Start processes
+# Notes:
+#   * The restconf process is started by clixon_backend
+#   * The mstpd process needs to be started before adding a bridge
 exec multirun \
   "clixon_backend -F -D default -s startup" \
   "/usr/sbin/sshd -D" \
