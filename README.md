@@ -5,6 +5,8 @@ This project provides a Docker container for managing network switches using CLI
 
 While this project is designed to be as generic as possible, development and testing have primarily focused on the [open source managed switch hardware](https://github.com/AlbrechtL/rpi-managed-switch-4-port). Compatibility with other hardware platforms may require additional adaptation or testing.
 
+![Dashboard](pictures/screenshot-web-interface-dashboard.png)
+
 ## Usage
 
 Build container
@@ -28,7 +30,7 @@ See also [`docker-compose.yml`](https://github.com/AlbrechtL/managed-switch-yang
 
 Simply open a web browser and navigate to `http://<host IP>:<host port>/` e.g. `http://localhost:8888/`
 
-![WEBSSH](pictures/screenshot-web-interface.png)
+![WEBCLI](pictures/screenshot-web-interface-cli.png)
 
 **SSH**
 
@@ -54,6 +56,9 @@ switch>
 ```
 
 ### RESTCONF
+
+![Swagger](pictures/screenshot-web-interface-swagger.png)
+
 
 ```bash
 $ curl -X GET http://<host ip>:<host port>/rest/restconf/data/<command>
