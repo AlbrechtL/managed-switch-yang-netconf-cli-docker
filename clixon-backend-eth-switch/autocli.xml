@@ -16,5 +16,10 @@
         <operation>enable</operation>
         <module-name>openconfig-interfaces</module-name>
      </rule>
+     <rule>
+        <name>include openconfig stp yang</name>
+        <operation>enable</operation>
+        <module-name>openconfig-spanning-tree</module-name>
+     </rule>
   </autocli>
 </clixon-config>

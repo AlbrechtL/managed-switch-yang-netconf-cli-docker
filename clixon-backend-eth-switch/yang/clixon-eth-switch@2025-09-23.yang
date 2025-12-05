@@ -9,6 +9,9 @@ module clixon-eth-switch{
     import openconfig-interfaces {
         prefix oc-if;
     }
+    import openconfig-spanning-tree {
+        prefix oc-stp;
+    }
 
     revision 2025-09-23 {
 	description
